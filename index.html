@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Grimorio del Warlock Drow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze:wght@500;600;700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
+<style>
+/* Layout: tabbed guide (hash routes). Each magic type = one tab with "¿Qué es?", an animated scene player on a 5-ft battle grid, and your list.
+   Same cave-stone/amethyst system as the Warlock calculator. */
+:root{
+  --bg:#eceef2; --surface:#fbfbfd; --sunk:#f2f2f7; --fg:#1f1b2e; --muted:#625d72; --line:#d8d7e1; --ink:#2b2642;
+  --accent:#5b37c4; --accent-soft:#ece6fb; --glow:#a82d80; --glow-soft:#f7e6f1; --warn:#a8431c; --warn-soft:#fbece4; --ok:#1d7563; --ok-soft:#e2f3ee; --void:#1f1b2e;
+  --display:"Grenze",Georgia,serif; --body:"Alegreya Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#13111a; --surface:#1c1926; --sunk:#17151f; --fg:#ebe7f3; --muted:#a19ab3; --line:#302c3e; --ink:#cdc6e0;
+  --accent:#b49bff; --accent-soft:#2a2342; --glow:#e47cc4; --glow-soft:#35202f; --warn:#f0905f; --warn-soft:#38211a; --ok:#6fd0b4; --ok-soft:#173029; --void:#000; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13111a; --surface:#1c1926; --sunk:#17151f; --fg:#ebe7f3; --muted:#a19ab3; --line:#302c3e; --ink:#cdc6e0;
+  --accent:#b49bff; --accent-soft:#2a2342; --glow:#e47cc4; --glow-soft:#35202f; --warn:#f0905f; --warn-soft:#38211a; --ok:#6fd0b4; --ok-soft:#173029; --void:#000; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 56px;font-variant-numeric:tabular-nums}
+.wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--display);line-height:1.1;text-wrap:balance;margin:0}
+h1{font-size:2.3rem;font-weight:700}
+h2{font-size:1.8rem;font-weight:600;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+h2 .t{font-family:var(--body);font-size:.85rem;color:var(--muted);font-weight:500;font-style:italic;margin-left:auto}
+h3{font-size:1.2rem;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+.lead{color:var(--muted);font-style:italic;margin-top:4px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+
+/* tabs */
+.tabs{display:flex;gap:4px;overflow-x:auto;padding:4px 0 8px;border-bottom:1.5px solid var(--ink);scrollbar-width:thin}
+.tabs a{white-space:nowrap;padding:5px 12px;border-radius:999px;color:var(--muted);text-decoration:none;font-weight:500;transition:background .15s,color .15s}
+.tabs a:hover{color:var(--fg);background:var(--sunk)}
+.tabs a[aria-current="page"]{background:var(--ink);color:var(--surface)}
+.tabs a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.view{display:flex;flex-direction:column;gap:18px;min-width:0;animation:in .35s ease-out}
+@keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* hero */
+.heroRow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:center}
+@media (max-width:720px){.heroRow{grid-template-columns:minmax(0,1fr)}}
+.hero svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--body);fill:var(--fg)}
+
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stat{padding:10px 12px;border-left:1px solid var(--line);margin-left:-1px;display:flex;flex-direction:column}
+.stat b{font-family:var(--display);font-size:1.7rem;line-height:1.05;color:var(--accent)}
+.stat span{font-size:.82rem;color:var(--muted);font-style:italic}
+
+.route{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.route a{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);text-decoration:none;transition:transform .18s,border-color .18s}
+.route a:hover,.route a:focus-visible{border-color:var(--accent);transform:translateY(-2px);outline:none}
+.route small{color:var(--muted)}
+.route b{font-family:var(--display);font-size:1.15rem}
+.route span{font-size:.9rem;color:var(--muted)}
+
+/* definition box */
+.def{background:var(--surface);border:1.5px solid var(--ink);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:10px}
+.def .k{font-size:.78rem;letter-spacing:.07em;text-transform:uppercase;color:var(--glow);font-weight:700}
+.def p{max-width:72ch}
+.keys{display:flex;flex-wrap:wrap;gap:6px}
+.keys span{background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:2px 11px;font-size:.88rem;font-weight:500}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .k{font-size:.78rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:2px 0}
+.note{font-size:.88rem;color:var(--muted)}
+.cost{display:inline-block;font-size:.78rem;font-weight:700;border-radius:999px;padding:1px 9px;white-space:nowrap;align-self:flex-start}
+.free{background:var(--ok-soft);color:var(--ok)}
+.slot{background:var(--accent-soft);color:var(--accent)}
+.day{background:var(--glow-soft);color:var(--glow)}
+.conc{background:var(--warn-soft);color:var(--warn)}
+
+/* scene player */
+.player{display:flex;flex-direction:column;gap:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{font:inherit;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:4px 13px;cursor:pointer;transition:border-color .15s,background .15s}
+.chips button:hover{border-color:var(--accent)}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.pl{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px}
+@media (max-width:780px){.pl{grid-template-columns:minmax(0,1fr)}}
+.stage svg{display:block;width:100%;height:auto;border-radius:6px}
+.side{display:flex;flex-direction:column;gap:10px;min-width:0}
+.side h4{margin:0;font-family:var(--display);font-size:1.3rem;font-weight:600}
+.steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:7px;font-size:.95rem}
+.steps li{color:var(--muted);transition:color .25s}
+.steps li.done{color:var(--fg)}
+.steps li.on{color:var(--fg);font-weight:500}
+.steps li.on::marker{color:var(--glow);font-weight:700}
+.ctrl{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.ctrl button,.btns button,.tools button,.pager a{font:inherit;font-size:.92rem;border:1px solid var(--line);background:var(--sunk);color:var(--fg);border-radius:999px;padding:5px 14px;cursor:pointer;text-decoration:none;transition:transform .12s,border-color .12s}
+.ctrl button:hover,.btns button:hover,.tools button:hover,.pager a:hover{border-color:var(--accent);transform:translateY(-1px)}
+.ctrl .play{background:var(--accent);color:var(--surface);border-color:var(--accent);font-weight:700}
+button:focus-visible,.pager a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default;transform:none!important}
+.pop{paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
+.spin{animation:spin 8s linear infinite}
+.throb{animation:throb 1s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes throb{50%{transform:scale(1.25)}}
+
+/* rules + turn */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.rule{background:var(--surface);border:1.5px solid var(--ink);border-radius:8px;padding:12px 16px}
+.rule b{color:var(--accent)}
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto}
+.fig svg{display:block;width:100%;min-width:560px;height:auto}
+.eco rect.box{animation:pulse 6s infinite}
+.eco .b2 rect.box{animation-delay:2s}
+.eco .b3 rect.box{animation-delay:4s}
+@keyframes pulse{0%,30%{stroke-width:3}35%,100%{stroke-width:1}}
+
+/* concentration lab */
+.lab{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;align-items:center}
+@media (max-width:620px){.lab{grid-template-columns:minmax(0,1fr)}}
+.orbbox{display:flex;flex-direction:column;align-items:center;gap:6px}
+.orb{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;text-align:center;font-family:var(--display);font-weight:700;font-size:1.15rem;line-height:1.05;padding:10px;
+  background:radial-gradient(circle at 35% 30%,var(--surface),var(--accent-soft) 60%);border:2px solid var(--accent);color:var(--accent);animation:breathe 2.6s ease-in-out infinite}
+.orb.empty{border-style:dashed;border-color:var(--line);color:var(--muted);animation:none;background:var(--sunk);font-family:var(--body);font-weight:500;font-size:.95rem}
+.orb.shatter{animation:shatter .45s ease-out}
+.orb.keep{animation:keep .5s ease-out}
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 var(--accent-soft)}50%{box-shadow:0 0 0 12px var(--accent-soft)}}
+@keyframes shatter{30%{transform:scale(1.15) rotate(-6deg);border-color:var(--warn)}60%{transform:scale(.85) rotate(4deg)}}
+@keyframes keep{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
+.orbcap{font-size:.82rem;color:var(--muted);font-style:italic}
+.btns,.tools{display:flex;flex-wrap:wrap;gap:6px}
+.btns button.c{border-color:var(--warn)}
+.log{min-height:3em;padding:8px 12px;border-radius:6px;background:var(--sunk);font-size:.95rem;margin-top:10px}
+.log b{color:var(--accent)}
+.log .bad{color:var(--warn);font-weight:700}
+.log .good{color:var(--ok);font-weight:700}
+
+/* slot tracker */
+.tracker{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.pips{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.pip{width:44px;height:44px;border-radius:50%;border:2px solid var(--accent);background:var(--accent);cursor:pointer;padding:0;transition:background .3s,transform .3s,box-shadow .3s;box-shadow:0 0 14px -2px var(--accent)}
+.pip.used{background:transparent;box-shadow:none;transform:scale(.82)}
+.pip.pop2{animation:pop2 .45s ease-out}
+@keyframes pop2{0%{transform:scale(.6)}60%{transform:scale(1.18)}}
+.pipslbl{font-family:var(--display);font-size:1.4rem;font-weight:700;color:var(--accent)}
+.tools .sr{border-color:var(--ok);color:var(--ok)}
+.tools .mc{border-color:var(--glow);color:var(--glow)}
+
+/* table */
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;min-width:700px;font-size:.93rem}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.78rem;color:var(--muted);font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:var(--sunk)}
+td.s{font-weight:700;white-space:nowrap}
+tbody tr:not(.grp){transition:background .15s}
+tbody tr:not(.grp):hover{background:var(--accent-soft)}
+tr.grp td{background:var(--sunk);font-family:var(--display);font-size:1.02rem;font-weight:600;color:var(--accent)}
+
+/* tactics */
+.tree{display:flex;flex-direction:column;gap:8px}
+.q{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.6fr);border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface);transition:transform .15s,border-color .15s}
+.q:hover{border-color:var(--accent);transform:translateX(4px)}
+.q>div{padding:9px 14px}
+.q .if{background:var(--sunk);font-weight:500}
+.q .then{border-left:3px solid var(--accent)}
+@media (max-width:560px){.q{grid-template-columns:minmax(0,1fr)}.q .then{border-left:0;border-top:3px solid var(--accent)}}
+.combo{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;transition:transform .18s,border-color .18s,box-shadow .18s}
+.combo:hover{transform:translateY(-3px);border-color:var(--glow);box-shadow:0 6px 18px -10px var(--glow)}
+.eq{font-family:var(--display);font-size:1.2rem;font-weight:600}
+.eq i{font-style:normal;color:var(--glow);padding:0 4px}
+.warnbox{background:var(--warn-soft);border-left:3px solid var(--warn);border-radius:4px 8px 8px 4px;padding:12px 16px}
+.warnbox ul{margin:6px 0 0;padding-left:18px}
+
+details{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 14px;transition:border-color .2s}
+details[open]{border-color:var(--accent)}
+details[open] ul{animation:drop .3s ease-out}
+@keyframes drop{from{transform:translateY(-6px);opacity:.3}}
+summary{cursor:pointer;font-weight:500}
+summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+details ul{margin:8px 0 0;padding-left:18px}
+
+.pager{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding-top:14px}
+.pager a{background:var(--surface)}
+
+/* hero animation */
+.beam{stroke-dasharray:260;stroke-dashoffset:260;animation:fire 3.2s ease-in infinite}
+.beam.b2{animation-delay:.25s}
+@keyframes fire{0%{stroke-dashoffset:260;opacity:1}22%{stroke-dashoffset:0;opacity:1}40%{opacity:0}100%{stroke-dashoffset:0;opacity:0}}
+.target{animation:push 3.2s ease-in infinite}
+@keyframes push{0%,20%{transform:translateX(0)}32%,70%{transform:translateX(26px)}100%{transform:translateX(0)}}
+.hit{opacity:0;animation:hit 3.2s infinite}
+@keyframes hit{0%,20%{opacity:0}24%{opacity:1}40%,100%{opacity:0}}
+.eye{transform-origin:72px 70px;animation:blink 5s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .beam{stroke-dashoffset:0}
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<div class="top">
+  <div>
+    <h1>Grimorio del Warlock Drow</h1>
+    <p class="lead">Nivel 5 · Great Old One · Pact of the Tome · 2024 + house rules</p>
+  </div>
+</div>
+
+<nav class="tabs" aria-label="Secciones">
+  <a href="#inicio">Inicio</a>
+  <a href="#cantrips">Cantrips</a>
+  <a href="#slots">Slot spells</a>
+  <a href="#drow">Magia drow</a>
+  <a href="#rituals">Rituals</a>
+  <a href="#features">Invocations &amp; features</a>
+  <a href="#turno">Turno</a>
+  <a href="#tactica">Táctica</a>
+  <a href="#arsenal">Arsenal</a>
+  <a href="#practica">Práctica</a>
+  <a href="#anexo">Anexo</a>
+</nav>
+
+<!-- ============ INICIO ============ -->
+<section class="view" id="v-inicio" data-title="Inicio">
+  <div class="heroRow">
+    <div class="def">
+      <span class="k">Cómo usar esta guía</span>
+      <p>Seguí las pestañas en orden. Cada tipo de magia tiene una explicación corta y escenas animadas: tocá <b>Reproducir</b> o andá <b>paso a paso</b>. La grilla de las escenas es de 5 ft por casilla.</p>
+    </div>
+    <div class="hero" aria-hidden="true">
+      <svg viewBox="0 0 420 140">
+        <g class="eye">
+          <path d="M30 70c14-20 28-28 42-28s28 8 42 28c-14 20-28 28-42 28S44 90 30 70z" style="fill:var(--accent-soft);stroke:var(--glow)" stroke-width="2.5"/>
+          <circle cx="72" cy="70" r="12" style="fill:var(--glow)"/><circle cx="72" cy="70" r="4" style="fill:var(--surface)"/>
+        </g>
+        <path class="beam" d="M118 66 Q220 30 330 62" style="fill:none;stroke:var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <path class="beam b2" d="M118 74 Q220 112 330 78" style="fill:none;stroke:var(--glow)" stroke-width="4" stroke-linecap="round"/>
+        <g class="target">
+          <rect x="334" y="44" width="40" height="52" rx="10" style="fill:var(--sunk);stroke:var(--ink)" stroke-width="2"/>
+          <circle cx="347" cy="62" r="3" style="fill:var(--ink)"/><circle cx="361" cy="62" r="3" style="fill:var(--ink)"/>
+          <g class="hit"><circle cx="336" cy="62" r="10" style="fill:var(--accent)" opacity=".5"/><circle cx="336" cy="78" r="10" style="fill:var(--glow)" opacity=".5"/></g>
+        </g>
+        <text x="150" y="132" font-size="13" style="fill:var(--muted)">Eldritch Blast · 2 beams · Repelling: push 10 ft</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="strip" aria-label="Números clave">
+    <div class="stat"><b>18</b><span>Spell save DC</span></div>
+    <div class="stat"><b>+10</b><span>Spell attack</span></div>
+    <div class="stat"><b>3 × nv3</b><span>Pact slots</span></div>
+    <div class="stat"><b>Short rest</b><span>recarga los slots</span></div>
+    <div class="stat"><b>1</b><span>Concentration a la vez</span></div>
+    <div class="stat"><b>5</b><span>Luck Points</span></div>
+  </div>
+
+  <h3>Ruta de 1 hora</h3>
+  <div class="route">
+    <a href="#cantrips"><small>8 min</small><b>Cantrips</b><span>Magia gratis e infinita</span></a>
+    <a href="#slots"><small>12 min</small><b>Slot spells</b><span>Lo fuerte, con recurso limitado</span></a>
+    <a href="#drow"><small>5 min</small><b>Magia drow</b><span>Gratis 1 vez por long rest</span></a>
+    <a href="#rituals"><small>5 min</small><b>Rituals</b><span>Utilidad sin gastar slot</span></a>
+    <a href="#features"><small>8 min</small><b>Invocations &amp; features</b><span>Lo que modifica todo lo anterior</span></a>
+    <a href="#turno"><small>8 min</small><b>Turno</b><span>Las 3 reglas que más importan</span></a>
+    <a href="#tactica"><small>7 min</small><b>Táctica</b><span>¿Qué lanzo? y combos</span></a>
+    <a href="#practica"><small>7 min</small><b>Práctica</b><span>Situaciones para resolver</span></a>
+  </div>
+</section>
+
+<!-- ============ CANTRIPS ============ -->
+<section class="view" id="v-cantrips" data-title="Cantrips" hidden>
+  <h2>Cantrips<span class="t">8 min</span></h2>
+  <div class="def">
+    <span class="k">¿Qué es?</span>
+    <p>Spells de nivel 0. <b>No gastan slot</b>: los lanzás todas las veces que quieras. No mejoran con slots sino con tu nivel de personaje (5, 11 y 17).</p>
+    <p>Hay dos formas de pegar: con <b>attack roll</b> (vos tirás d20 + 10 contra su AC) o con <b>saving throw</b> (el enemigo tira contra tu DC 18). Si el enemigo tiene AC alta, preferí los de saving throw.</p>
+    <div class="keys"><span>Infinitos</span><span>1 action</span><span>Escalan con nivel 5/11/17</span><span>Attack roll +10 o save DC 18</span></div>
+  </div>
+  <div class="player" data-scenes="eb,toll,mockery,hand"></div>
+  <div class="grid">
+    <div class="card"><span class="cost free">Clase</span><ul><li><b>Eldritch Blast</b>: tu ataque principal</li><li><b>Toll the Dead</b>: save, ideal vs AC alta</li><li><b>Mage Hand</b>: utilidad a 30 ft</li></ul></div>
+    <div class="card"><span class="cost free">Book of Shadows</span><ul><li><b>Poison Spray</b>: 2d12, solo 30 ft</li><li><b>Fire Bolt</b>: 2d10 fire, 120 ft</li><li><b>Vicious Mockery</b>: daño + disadvantage</li></ul></div>
+    <div class="card"><span class="cost free">Drow</span><ul><li><b>Dancing Lights</b>: hasta 4 luces que movés</li></ul><p class="note">Ojo: Toll the Dead está repetido en tu ficha (clase y Book). Ver Anexo.</p></div>
+  </div>
+</section>
+
+<!-- ============ SLOT SPELLS ============ -->
+<section class="view" id="v-slots" data-title="Slot spells" hidden>
+  <h2>Slot spells<span class="t">12 min</span></h2>
+  <div class="def">
+    <span class="k">¿Qué es?</span>
+    <p>Spells de nivel 1 o más. Cada vez que lanzás uno <b>gastás un slot</b>. El warlock usa <b>Pact Magic</b>: pocos slots, pero todos del nivel más alto que tenés y se recargan con un <b>short rest</b>.</p>
+    <p>Tus slots son de nivel 3, así que un spell de nivel 1 como Hex sale <b>upcasteado gratis</b> a nivel 3. Tenés 6 spells <b>prepared</b> a elección y 6 <b>patron spells</b> que el Great Old One te da siempre preparados.</p>
+    <div class="keys"><span>3 slots (house rule)</span><span>Todo a nivel 3</span><span>1 spell con slot por turno</span><span>Short rest = slots llenos</span><span>Muchos son concentration</span></div>
+  </div>
+  <div class="player" data-scenes="hex,hadar,counter,misty,whispers"></div>
+
+  <h3>Probalo: tus slots</h3>
+  <div class="tracker">
+    <div class="pips" id="pips" aria-label="Pact slots">
+      <button type="button" class="pip" aria-label="Slot 1"></button>
+      <button type="button" class="pip" aria-label="Slot 2"></button>
+      <button type="button" class="pip" aria-label="Slot 3"></button>
+      <span class="pipslbl" id="pipsLbl">3 / 3</span>
+    </div>
+    <div class="tools">
+      <button type="button" id="cast">Gastar un slot</button>
+      <button type="button" class="sr" id="sr">Short rest (1 h)</button>
+      <button type="button" class="mc" id="mc">Magical Cunning (+2, 1/LR)</button>
+      <button type="button" id="lr">Long rest</button>
+    </div>
+    <div class="log" id="slog" role="status" aria-live="polite">Tocá un slot o “Gastar un slot” para simular una pelea.</div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><span class="cost slot">Prepared (elegís)</span><ul><li>Hex · Bane · Misty Step</li><li>Mind Spike · Counterspell · Summon Undead</li></ul><p class="note">Al subir de nivel podés cambiar uno.</p></div>
+    <div class="card"><span class="cost slot">Patron spells (siempre)</span><ul><li>Dissonant Whispers · Tasha's Hideous Laughter</li><li>Detect Thoughts · Phantasmal Force</li><li>Clairvoyance · Hunger of Hadar</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ DROW ============ -->
+<section class="view" id="v-drow" data-title="Magia drow" hidden>
+  <h2>Magia drow<span class="t">5 min</span></h2>
+  <div class="def">
+    <span class="k">¿Qué es?</span>
+    <p>Viene de tu especie (<b>Elven Lineage: Drow</b>), no de la clase. Aprendés <b>Dancing Lights</b> (cantrip), <b>Faerie Fire</b> (nivel 3) y <b>Darkness</b> (nivel 5).</p>
+    <p>Faerie Fire y Darkness se lanzan <b>gratis una vez por long rest</b>, sin slot. Después podés volver a lanzarlos gastando pact slots. Los dos son <b>concentration</b>: compiten con Hex y Hunger of Hadar.</p>
+    <div class="keys"><span>1/long rest sin slot</span><span>Después, con slot</span><span>Concentration</span><span>Darkvision 120 ft</span></div>
+  </div>
+  <div class="player" data-scenes="faerie,darkness"></div>
+  <div class="grid">
+    <div class="card"><span class="cost day">Faerie Fire</span><p>Cubo de 20 ft, DEX save. Los afectados brillan: <b>advantage</b> para atacarlos y no pueden ser invisibles.</p></div>
+    <div class="card"><span class="cost day">Darkness</span><p>Esfera de 15 ft de oscuridad mágica. Nadie ve adentro, ni siquiera con darkvision. Sirve para cortar ataques a distancia o escapar.</p></div>
+    <div class="card"><span class="cost free">Pasivos drow</span><ul><li><b>Darkvision 120 ft</b></li><li><b>Fey Ancestry</b>: advantage contra charmed</li><li><b>Trance</b>: long rest en 4 h</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ RITUALS ============ -->
+<section class="view" id="v-rituals" data-title="Rituals" hidden>
+  <h2>Rituals<span class="t">5 min</span></h2>
+  <div class="def">
+    <span class="k">¿Qué es?</span>
+    <p>Algunos spells tienen la etiqueta <b>Ritual</b>. Se pueden lanzar tardando <b>10 minutos más</b> y <b>sin gastar slot</b>. Vos podés hacerlo con los rituals de tu Book of Shadows (Pact of the Tome).</p>
+    <p>En combate no sirven como ritual: tardan demasiado. Si lo necesitás ya, lo lanzás normal y gastás un slot.</p>
+    <div class="keys"><span>+10 min de casting</span><span>Sin slot</span><span>Fuera de combate</span><span>Unseen Servant · Floating Disk</span></div>
+  </div>
+  <div class="player" data-scenes="servant,disk"></div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="view" id="v-features" data-title="Invocations & features" hidden>
+  <h2>Invocations &amp; features<span class="t">8 min</span></h2>
+  <div class="def">
+    <span class="k">¿Qué es?</span>
+    <p><b>Invocations</b>: mejoras que elegís como warlock (tenés 5 a nivel 5). Algunas modifican un spell (Agonizing y Repelling cambian Eldritch Blast); otras te dan algo nuevo (Pact of the Tome, Eldritch Mind, Lessons of the First Ones).</p>
+    <p><b>Features</b>: lo que te dan sin elegir tu clase, tu patron (Great Old One), tu especie y tus feats. No se “lanzan”: están siempre activos o se usan como acción propia.</p>
+    <div class="keys"><span>5 invocations</span><span>Cambian cómo funcionan tus spells</span><span>Casi todo es pasivo</span></div>
+  </div>
+  <div class="player" data-scenes="agon,mind,awake,psychic,lucky,tome"></div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Nombre</th><th>Origen</th><th>Qué hace</th><th>Cuándo lo pensás</th></tr></thead>
+      <tbody>
+        <tr><td class="s">Pact of the Tome</td><td>Invocation</td><td>Book of Shadows: 3 cantrips + 2 rituals + focus</td><td>Al preparar el día</td></tr>
+        <tr><td class="s">Agonizing Blast</td><td>Invocation</td><td>+5 (CHA) al daño de cada beam de EB</td><td>Siempre, es pasivo</td></tr>
+        <tr><td class="s">Repelling Blast</td><td>Invocation</td><td>Cada beam que pega empuja 10 ft</td><td>Al apuntar: ¿lo quiero lejos o adentro de algo?</td></tr>
+        <tr><td class="s">Eldritch Mind</td><td>Invocation</td><td>Advantage en concentration saves</td><td>Cuando te pegan concentrado</td></tr>
+        <tr><td class="s">Lessons of the First Ones</td><td>Invocation</td><td>Te dio la feat <b>Lucky</b> (5 Luck Points)</td><td>Antes de un d20 importante o cuando te atacan</td></tr>
+        <tr><td class="s">Magical Cunning</td><td>Clase (nv 2)</td><td>Rito de 1 min: recuperás 2 slots, 1/long rest</td><td>Con 0-1 slots y sin short rest</td></tr>
+        <tr><td class="s">Awakened Mind</td><td>GOO (nv 3)</td><td>Telepatía con 1 criatura, bonus action</td><td>Planes en silencio</td></tr>
+        <tr><td class="s">Psychic Spells</td><td>GOO (nv 3)</td><td>Daño → psychic; enchantments/illusions sin V ni S</td><td>Atado, amordazado o pasando desapercibido</td></tr>
+        <tr><td class="s">Skilled</td><td>Background</td><td>3 competencias extra</td><td>Fuera de combate</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ TURNO ============ -->
+<section class="view" id="v-turno" data-title="Turno" hidden>
+  <h2>Turno<span class="t">8 min · si entendés esto, entendés el 80 %</span></h2>
+  <div class="fig">
+    <svg class="eco" viewBox="0 0 760 210" role="img" aria-label="Action economy: action, bonus action, reaction y movement">
+      <g class="b1">
+        <rect class="box" x="10" y="10" width="270" height="120" rx="8" style="fill:var(--accent-soft);stroke:var(--accent)"/>
+        <text x="26" y="38" font-size="20" font-weight="700" style="fill:var(--accent)">ACTION</text>
+        <text x="26" y="62" font-size="14">Eldritch Blast · Toll the Dead · Mind Spike</text>
+        <text x="26" y="82" font-size="14">Hunger of Hadar · Bane · Summon Undead</text>
+        <text x="26" y="102" font-size="14">Dissonant Whispers · Tasha's · Faerie Fire</text>
+        <text x="26" y="122" font-size="14">Darkness · Phantasmal Force</text>
+      </g>
+      <g class="b2">
+        <rect class="box" x="295" y="10" width="220" height="120" rx="8" style="fill:var(--glow-soft);stroke:var(--glow)"/>
+        <text x="311" y="38" font-size="20" font-weight="700" style="fill:var(--glow)">BONUS ACTION</text>
+        <text x="311" y="62" font-size="14">Hex (lanzar o moverlo)</text>
+        <text x="311" y="82" font-size="14">Misty Step</text>
+        <text x="311" y="102" font-size="14">Awakened Mind</text>
+      </g>
+      <g class="b3">
+        <rect class="box" x="530" y="10" width="220" height="120" rx="8" style="fill:var(--warn-soft);stroke:var(--warn)"/>
+        <text x="546" y="38" font-size="20" font-weight="700" style="fill:var(--warn)">REACTION</text>
+        <text x="546" y="62" font-size="14">Counterspell</text>
+        <text x="546" y="82" font-size="14">(en el turno de otro)</text>
+        <text x="546" y="102" font-size="14">Lucky no gasta reaction</text>
+      </g>
+      <rect x="10" y="146" width="740" height="52" rx="8" style="fill:var(--sunk);stroke:var(--line)"/>
+      <text x="26" y="168" font-size="15" font-weight="700">+ MOVEMENT</text>
+      <text x="26" y="188" font-size="14" style="fill:var(--muted)">Podés partirlo: mover → lanzar → mover. Ranged attack con un enemigo a 5 ft = disadvantage.</text>
+    </svg>
+  </div>
+  <div class="rules">
+    <div class="rule"><p><b>Regla 1 · Un slot por turno.</b> En tu turno solo podés lanzar <i>un</i> spell que gaste slot. El resto, cantrips. Hex + EB sí; Hex + Mind Spike no. Counterspell va en el turno de otro, así que no choca.</p></div>
+    <div class="rule"><p><b>Regla 2 · Una concentration.</b> Si lanzás otro spell de concentration, el anterior se corta. Elegí cuál es “tu” spell de la pelea.</p></div>
+    <div class="rule"><p><b>Regla 3 · Si te pegan, salvás.</b> CON save (+4) contra DC 10 o la mitad del daño, la más alta. Con <b>advantage</b> por Eldritch Mind, así que rara vez lo perdés.</p></div>
+  </div>
+
+  <h3>Probalo: concentration</h3>
+  <div class="lab">
+    <div class="orbbox">
+      <div class="orb empty" id="orb">Sin concentration</div>
+      <span class="orbcap">tu única concentration</span>
+    </div>
+    <div>
+      <div class="btns" id="spellBtns">
+        <button type="button" class="c" data-s="Hex">Hex</button>
+        <button type="button" class="c" data-s="Hunger of Hadar">Hunger of Hadar</button>
+        <button type="button" class="c" data-s="Bane">Bane</button>
+        <button type="button" class="c" data-s="Faerie Fire">Faerie Fire</button>
+        <button type="button" class="c" data-s="Summon Undead">Summon Undead</button>
+        <button type="button" data-s="Misty Step">Misty Step</button>
+        <button type="button" data-s="Dissonant Whispers">Dissonant Whispers</button>
+        <button type="button" data-s="Eldritch Blast">Eldritch Blast</button>
+        <button type="button" data-s="__hit">Te pegan 22</button>
+      </div>
+      <p class="note" style="margin-top:6px">Borde naranja = spell de concentration.</p>
+      <div class="log" id="log" role="status" aria-live="polite">Tocá un spell para ver qué pasa con tu concentration.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TACTICA ============ -->
+<section class="view" id="v-tactica" data-title="Táctica" hidden>
+  <h2>¿Qué lanzo?<span class="t">7 min · leé de arriba a abajo; la primera que aplique</span></h2>
+  <div class="tree">
+    <div class="q"><div class="if">Un enemigo está lanzando algo grave</div><div class="then"><b>Counterspell</b> (reaction). El mejor uso de un slot.</div></div>
+    <div class="q"><div class="if">Estás grappled o rodeado en melee</div><div class="then"><b>Misty Step</b> + <b>Eldritch Blast</b> en el mismo turno.</div></div>
+    <div class="q"><div class="if">3+ enemigos juntos</div><div class="then"><b>Hunger of Hadar</b>, después EB con Repelling para que no salgan.</div></div>
+    <div class="q"><div class="if">2-3 enemigos peligrosos</div><div class="then"><b>Tasha's Hideous Laughter</b> o <b>Bane</b>.</div></div>
+    <div class="q"><div class="if">Un boss, pelea larga</div><div class="then"><b>Hex</b> al boss + EB cada turno.</div></div>
+    <div class="q"><div class="if">Ya estás concentrado en algo bueno</div><div class="then">Cantrips, o <b>Dissonant Whispers</b> (no es concentration).</div></div>
+    <div class="q"><div class="if">Te quedan 0-1 slots</div><div class="then">Guardá el último para Counterspell o Misty Step. Disparás EB.</div></div>
+  </div>
+  <h3>Combos</h3>
+  <div class="grid">
+    <div class="combo"><div class="eq">Hex <i>+</i> Eldritch Blast</div><p>Cada beam: 1d10+5+1d6 ≈ 14. Dos beams ≈ 28 por turno. A nivel 3 Hex dura 8 h: un slot puede cubrir varias peleas.</p></div>
+    <div class="combo"><div class="eq">Hunger of Hadar <i>+</i> Repelling Blast</div><p>Los enemigos quieren salir de la esfera; tus beams los empujan 10 ft adentro otra vez.</p></div>
+    <div class="combo"><div class="eq">Dissonant Whispers <i>+</i> aliados melee</div><p>El enemigo huye con su reaction y cada aliado al lado le pega un opportunity attack. Compatible con Hex activo.</p></div>
+    <div class="combo"><div class="eq">Bane <i>→</i> Counterspell</div><p>Bane resta 1d4 a sus saving throws. Un caster bajo Bane falla más fácil el CON save de Counterspell.</p></div>
+    <div class="combo"><div class="eq">Faerie Fire <i>vs</i> Hex</div><p>Ambos son concentration: elegí. Faerie Fire es gratis y ayuda a todo el grupo; Hex es solo tu daño.</p></div>
+    <div class="combo"><div class="eq">Lucky <i>defensivo</i></div><p>Cuando te atacan, 1 Luck Point le da disadvantage al atacante. No gasta reaction.</p></div>
+  </div>
+  <div class="warnbox">
+    <b>Errores típicos</b>
+    <ul>
+      <li>Lanzar Hex y después otro spell de concentration: Hex se corta.</li>
+      <li>Misty Step y otro spell con slot en el mismo turno: no se puede.</li>
+      <li>Darkness con vos o aliados adentro: tu darkvision no atraviesa oscuridad mágica.</li>
+      <li>Hunger of Hadar sobre tus aliados melee: los deja blinded y les hace daño.</li>
+      <li>Gastar slot en Unseen Servant o Floating Disk: son rituals gratis.</li>
+      <li>EB con un enemigo a 5 ft: disadvantage. Movete antes o usá Toll the Dead (saving throw).</li>
+      <li>Usar Lucky en un concentration save: ya tenés advantage, no suma nada.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ ARSENAL ============ -->
+<section class="view" id="v-arsenal" data-title="Arsenal" hidden>
+  <h2>Arsenal<span class="t">referencia rápida con tus números</span></h2>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Spell</th><th>Coste</th><th>Casting</th><th>Efecto</th><th>Usalo cuando…</th></tr></thead>
+      <tbody>
+        <tr class="grp"><td colspan="5">Cantrips</td></tr>
+        <tr><td class="s">Eldritch Blast</td><td><span class="cost free">gratis</span></td><td>Action</td><td>2 beams, +10 to hit, 1d10+5 force c/u, 120 ft, push 10 ft</td><td>Siempre. Tu ataque por defecto.</td></tr>
+        <tr><td class="s">Toll the Dead</td><td><span class="cost free">gratis</span></td><td>Action</td><td>WIS save DC 18, 2d8 necrotic (2d12 si ya está herido)</td><td>AC alta, o ya herido</td></tr>
+        <tr><td class="s">Poison Spray</td><td><span class="cost free">gratis</span></td><td>Action</td><td>+10 to hit, 2d12 poison, 30 ft</td><td>Cerca y sin resistance a poison</td></tr>
+        <tr><td class="s">Fire Bolt</td><td><span class="cost free">gratis</span></td><td>Action</td><td>+10 to hit, 2d10 fire, 120 ft</td><td>Vulnerable al fire, o prender cosas</td></tr>
+        <tr><td class="s">Vicious Mockery</td><td><span class="cost free">gratis</span></td><td>Action</td><td>WIS save DC 18, 2d6 psychic, disadvantage en su próximo ataque</td><td>Proteger a un aliado</td></tr>
+        <tr><td class="s">Mage Hand / Dancing Lights</td><td><span class="cost free">gratis</span></td><td>Action</td><td>Mano a 30 ft / luces</td><td>Utilidad</td></tr>
+        <tr class="grp"><td colspan="5">Daño y control con slot</td></tr>
+        <tr><td class="s">Hex</td><td><span class="cost slot">slot</span> <span class="cost conc">conc.</span></td><td>Bonus</td><td>+1d6 necrotic por beam; disadvantage en checks de 1 atributo. Hasta 8 h; lo movés si el blanco muere</td><td>Pelea larga o boss</td></tr>
+        <tr><td class="s">Hunger of Hadar</td><td><span class="cost slot">slot</span> <span class="cost conc">conc.</span></td><td>Action</td><td>Esfera 20 ft: blinded, difficult terrain, 2d6 cold + 2d6 acid por turno</td><td>Grupo junto o pasillo</td></tr>
+        <tr><td class="s">Mind Spike</td><td><span class="cost slot">slot</span> <span class="cost conc">conc.</span></td><td>Action</td><td>WIS save, 4d8 psychic (mitad si salva), lo rastreás 1 h</td><td>Golpe único o seguir a alguien</td></tr>
+        <tr><td class="s">Dissonant Whispers</td><td><span class="cost slot">slot</span></td><td>Action</td><td>WIS save, 5d6 psychic; si falla, usa su reaction para huir</td><td>Enemigo pegado a aliados melee</td></tr>
+        <tr><td class="s">Summon Undead</td><td><span class="cost slot">slot</span> <span class="cost conc">conc.</span></td><td>Action</td><td>Aliado undead por 1 h</td><td>Pelea larga</td></tr>
+        <tr><td class="s">Bane</td><td><span class="cost slot">slot</span> <span class="cost conc">conc.</span></td><td>Action</td><td>Hasta 5 blancos, CHA save: −1d4 a attack rolls y saves</td><td>Muchos enemigos</td></tr>
+        <tr><td class="s">Tasha's Hideous Laughter</td><td><span class="cost slot">slot</span> <span class="cost conc">conc.</span></td><td>Action</td><td>Hasta 3 blancos, WIS save: prone e incapacitated</td><td>Sacar de la pelea a 2-3 peligrosos</td></tr>
+        <tr><td class="s">Phantasmal Force</td><td><span class="cost slot">slot</span> <span class="cost conc">conc.</span></td><td>Action</td><td>INT save, illusion que cree real; 3d8 psychic por turno</td><td>Brutos de INT baja</td></tr>
+        <tr class="grp"><td colspan="5">Defensa y escape</td></tr>
+        <tr><td class="s">Counterspell</td><td><span class="cost slot">slot</span></td><td>Reaction</td><td>El caster hace CON save DC 18; si falla, pierde el spell</td><td>Spell enemigo que cambia la pelea</td></tr>
+        <tr><td class="s">Misty Step</td><td><span class="cost slot">slot</span></td><td>Bonus</td><td>Teleport 30 ft</td><td>Grappled o rodeado</td></tr>
+        <tr class="grp"><td colspan="5">Drow (1/long rest gratis)</td></tr>
+        <tr><td class="s">Faerie Fire</td><td><span class="cost day">1/LR</span> <span class="cost conc">conc.</span></td><td>Action</td><td>Cubo 20 ft, DEX save: advantage contra ellos, anula invisibility</td><td>El grupo ataca mucho</td></tr>
+        <tr><td class="s">Darkness</td><td><span class="cost day">1/LR</span> <span class="cost conc">conc.</span></td><td>Action</td><td>Esfera 15 ft de oscuridad mágica</td><td>Cortar arqueros o huir</td></tr>
+        <tr class="grp"><td colspan="5">Exploración y rituals</td></tr>
+        <tr><td class="s">Detect Thoughts</td><td><span class="cost slot">slot</span> <span class="cost conc">conc.</span></td><td>Action</td><td>Leer pensamientos superficiales</td><td>Interrogatorios</td></tr>
+        <tr><td class="s">Clairvoyance</td><td><span class="cost slot">slot</span> <span class="cost conc">conc.</span></td><td>10 min</td><td>Sensor invisible en un lugar conocido</td><td>Espiar antes de entrar</td></tr>
+        <tr><td class="s">Unseen Servant</td><td><span class="cost free">ritual</span></td><td>+10 min</td><td>Sirviente invisible 1 h</td><td>Puertas, trampas, cargar</td></tr>
+        <tr><td class="s">Tenser's Floating Disk</td><td><span class="cost free">ritual</span></td><td>+10 min</td><td>Disco que carga 500 lb, 1 h</td><td>Botín pesado</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ PRACTICA ============ -->
+<section class="view" id="v-practica" data-title="Práctica" hidden>
+  <h2>Práctica<span class="t">7 min · pensá la respuesta antes de abrir</span></h2>
+  <details><summary>Arranca la pelea: 4 goblins juntos y un shaman atrás.</summary>
+    <ul><li>Turno 1: <b>Hunger of Hadar</b> sobre los goblins.</li><li>Turno 2+: EB al shaman. Si un goblin sale de la esfera, Repelling lo devuelve.</li><li>Guardá un slot para Counterspell al shaman.</li></ul></details>
+  <details><summary>El boss orco va a pelear 5+ rondas.</summary>
+    <ul><li>Turno 1: <b>Hex</b> (bonus action) + EB.</li><li>Elegí STR en Hex: disadvantage en sus checks para grapplearte.</li><li>EB todos los turnos; Hex sigue activo.</li></ul></details>
+  <details><summary>Un mago enemigo empieza a lanzar Fireball.</summary>
+    <ul><li><b>Counterspell</b> con tu reaction.</li><li>Él hace CON save contra DC 18. Si estaba bajo Bane, mejor.</li></ul></details>
+  <details><summary>Te grapplea un ogro y estás concentrado en Hex.</summary>
+    <ul><li><b>Misty Step</b> (bonus action) para salir.</li><li>Action: <b>EB</b>. Misty Step no es concentration, Hex sigue.</li><li>No podés sumar otro spell con slot ese turno.</li></ul></details>
+  <details><summary>Recibís 22 de daño con Hex activo.</summary>
+    <ul><li>DC = 11 (mitad de 22).</li><li>CON save +4 con advantage (Eldritch Mind).</li><li>Lucky no ayuda: ya tenés advantage.</li></ul></details>
+  <details><summary>Tu fighter está en melee con un troll.</summary>
+    <ul><li><b>Dissonant Whispers</b>: si falla, huye y el fighter le pega un opportunity attack.</li><li>O <b>Vicious Mockery</b> gratis para que su próximo ataque tenga disadvantage.</li></ul></details>
+  <details><summary>Antes de entrar a una cripta, querés saber qué hay.</summary>
+    <ul><li>Ritual <b>Unseen Servant</b> (10 min, sin slot) para abrir puertas y pisar trampas.</li><li>Si hay tiempo y slots: <b>Clairvoyance</b>.</li></ul></details>
+  <details><summary>Un rogue invisible te está atacando.</summary>
+    <ul><li><b>Faerie Fire</b> (gratis 1/LR): si falla el DEX save, deja de ser invisible y le atacan con advantage.</li></ul></details>
+  <details><summary>Te quedan 0 slots, no hay short rest y viene otra pelea.</summary>
+    <ul><li>Un minuto antes: <b>Magical Cunning</b>, recuperás 2 slots.</li><li>Si ya lo usaste hoy: EB, Toll the Dead y Faerie Fire/Darkness si los tenés.</li></ul></details>
+</section>
+
+<!-- ============ ANEXO ============ -->
+<section class="view" id="v-anexo" data-title="Anexo" hidden>
+  <h2>Anexo<span class="t">items y anotaciones</span></h2>
+  <div class="grid">
+    <div class="card">
+      <span class="k">Items (no se usan en la campaña)</span>
+      <ul>
+        <li>Tu <b>Book of Shadows</b> funciona como spellcasting focus: no necesitás component pouch salvo components con costo.</li>
+        <li>Si algún día entran items, los que más cambian al warlock son los que suben DC/spell attack o recuperan un pact slot.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="k">Revisá en tu ficha</span>
+      <ul>
+        <li><b>Toll the Dead</b> está dos veces (cantrip de clase y Book of Shadows). Cambiá uno: Minor Illusion, Prestidigitation o Guidance.</li>
+        <li>Fire Bolt y EB se pisan bastante. Un cantrip de utilidad rinde más.</li>
+        <li>La magia drow asume CHA como spellcasting ability.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="k">House rules aplicadas</span>
+      <ul>
+        <li>PB +5 → DC 18, spell attack +10, 5 Luck Points.</li>
+        <li>3 slots de nivel 3 (en vez de 2).</li>
+        <li>Magical Cunning recupera la mitad redondeada arriba: 2.</li>
+        <li>Song of Rest sigue vigente en la mesa: más motivo para pedir short rests.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+const NS="http://www.w3.org/2000/svg";
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const D=ms=>RM?1:ms;
+const wait=ms=>new Promise(r=>setTimeout(r,RM?Math.min(ms,200):ms));
+const fin=a=>a.finished.catch(()=>{});
+function el(tag,a,p){const e=document.createElementNS(NS,tag);for(const k in a){const v=a[k];if(k==="fill"||k==="stroke")e.style[k]=v;else e.setAttribute(k,v)}if(p)p.appendChild(e);return e}
+
+/* ---------- stage ---------- */
+function stage(svg,grid){
+  svg.innerHTML="";const S={svg};
+  el("rect",{width:600,height:260,fill:"var(--sunk)"},svg);
+  if(grid){const g=el("g",{stroke:"var(--line)","stroke-width":1},svg);
+    for(let x=30;x<600;x+=30)el("line",{x1:x,y1:0,x2:x,y2:260},g);
+    for(let y=30;y<260;y+=30)el("line",{x1:0,y1:y,x2:600,y2:y},g);
+    const t=el("text",{x:592,y:252,"text-anchor":"end","font-size":11,fill:"var(--muted)"},svg);t.textContent="1 casilla = 5 ft";}
+  S.under=el("g",{},svg);S.layer=el("g",{},svg);S.over=el("g",{},svg);S.fx=el("g",{},svg);S.top=el("g",{},svg);
+  return S;
+}
+function thing(S,x,y,draw,label,layer){
+  const g=el("g",{},layer||S.layer);g.style.transform=`translate(${x}px,${y}px)`;
+  const body=el("g",{},g);if(draw)draw(body);
+  if(label){const t=el("text",{y:36,"text-anchor":"middle","font-size":13,"font-weight":500},g);t.textContent=label}
+  return {g,body,x,y};
+}
+const W=(S,x,y,l="Vos")=>thing(S,x,y,b=>{el("circle",{r:17,fill:"var(--accent)"},b);el("ellipse",{rx:9,ry:5,fill:"var(--surface)"},b);el("circle",{r:3,fill:"var(--glow)"},b)},l);
+const E=(S,x,y,l)=>thing(S,x,y,b=>{el("rect",{x:-15,y:-15,width:30,height:30,rx:7,fill:"var(--surface)",stroke:"var(--warn)","stroke-width":2.5},b);el("circle",{cx:-5,cy:-3,r:2.5,fill:"var(--warn)"},b);el("circle",{cx:5,cy:-3,r:2.5,fill:"var(--warn)"},b)},l);
+const A=(S,x,y,l)=>thing(S,x,y,b=>{el("circle",{r:15,fill:"var(--ok-soft)",stroke:"var(--ok)","stroke-width":2.5},b);el("path",{d:"M-6 3 L0 -5 L6 3",fill:"none",stroke:"var(--ok)","stroke-width":2.5},b)},l);
+
+async function move(a,x,y,dur=700){const k=[{transform:`translate(${a.x}px,${a.y}px)`},{transform:`translate(${x}px,${y}px)`}];a.x=x;a.y=y;a.g.style.transform=`translate(${x}px,${y}px)`;await fin(a.g.animate(k,{duration:D(dur),easing:"ease-in-out"}))}
+function setPos(a,x,y){a.x=x;a.y=y;a.g.style.transform=`translate(${x}px,${y}px)`}
+async function push(from,t,px=60){const dx=t.x-from.x,dy=t.y-from.y,L=Math.hypot(dx,dy)||1;await move(t,t.x+dx/L*px,t.y+dy/L*px,420)}
+const pulse=a=>fin(a.body.animate([{transform:"scale(1)"},{transform:"scale(1.25)"},{transform:"scale(1)"}],{duration:D(520)}));
+const shake=a=>fin(a.body.animate([{transform:"translateX(0)"},{transform:"translateX(-5px)"},{transform:"translateX(5px)"},{transform:"translateX(-3px)"},{transform:"translateX(0)"}],{duration:D(420)}));
+const lunge=(a,dx)=>fin(a.body.animate([{transform:"translateX(0)"},{transform:`translateX(${dx}px)`},{transform:"translateX(0)"}],{duration:D(450)}));
+async function fade(a,to,d=500){const from=getComputedStyle(a.g).opacity;a.g.style.opacity=to;await fin(a.g.animate([{opacity:from},{opacity:to}],{duration:D(d)}))}
+function flash(S,t,color){const c=el("circle",{cx:t.x,cy:t.y,r:16,fill:color,opacity:.5},S.fx);c.style.transformBox="fill-box";c.style.transformOrigin="center";
+  fin(c.animate([{transform:"scale(.5)",opacity:.7},{transform:"scale(1.7)",opacity:0}],{duration:D(450),fill:"forwards"})).then(()=>c.remove())}
+async function beam(S,a,b,color,o={}){
+  const dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L;
+  const x1=a.x+ux*20,y1=a.y+uy*20,x2=b.x-ux*18,y2=b.y-uy*18;let d=`M${x1} ${y1}`;
+  if(o.wave){const n=Math.max(4,Math.round(L/28));for(let i=1;i<=n;i++){const t=i/n,tm=(i-.5)/n,s=(i%2?1:-1)*9;
+    d+=` Q${x1+(x2-x1)*tm-uy*s} ${y1+(y2-y1)*tm+ux*s} ${x1+(x2-x1)*t} ${y1+(y2-y1)*t}`}}
+  else d+=` L${x2} ${y2}`;
+  const p=el("path",{d,fill:"none",stroke:color,"stroke-width":o.w||4,"stroke-linecap":"round"},S.fx);
+  const len=p.getTotalLength()||L;p.style.strokeDasharray=len;p.style.strokeDashoffset=0;
+  await fin(p.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:D(o.dur||280),easing:"ease-in"}));
+  if(o.keep)return p;
+  if(o.hit!==false)flash(S,b,color);
+  fin(p.animate([{opacity:1},{opacity:0}],{duration:D(420),fill:"forwards"})).then(()=>p.remove());
+}
+function pop(S,t,txt,o={}){
+  const e=el("text",{x:t.x,y:t.y-(o.dy||30),"text-anchor":"middle","font-size":o.big?22:16,"font-weight":700,fill:o.color||"var(--glow)",class:"pop"},S.top);e.textContent=txt;
+  if(RM)return Promise.resolve();
+  return fin(e.animate([{transform:"translateY(6px)",opacity:0},{transform:"translateY(0)",opacity:1,offset:.15},{transform:"translateY(-8px)",opacity:1,offset:.75},{transform:"translateY(-22px)",opacity:0}],{duration:o.dur||1900,fill:"forwards"})).then(()=>e.remove());
+}
+async function dice(S,t,vals,pick,note){
+  const g=el("g",{},S.top),w=30,gap=8,tot=vals.length*w+(vals.length-1)*gap,x0=t.x-tot/2;let y=t.y-80;if(y<26)y=t.y+46;
+  vals.forEach((v,i)=>{const on=i===pick,x=x0+i*(w+gap);
+    el("rect",{x,y,width:w,height:w,rx:6,fill:on?"var(--accent)":"var(--surface)",stroke:"var(--accent)","stroke-width":2},g);
+    const tx=el("text",{x:x+w/2,y:y+20,"text-anchor":"middle","font-size":15,"font-weight":700,fill:on?"var(--surface)":"var(--muted)"},g);tx.textContent=v;
+    if(!on&&vals.length>1)el("line",{x1:x+4,y1:y+w-4,x2:x+w-4,y2:y+4,stroke:"var(--warn)","stroke-width":2},g)});
+  if(note){const n=el("text",{x:t.x,y:y-7,"text-anchor":"middle","font-size":13,"font-weight":700,class:"pop"},g);n.textContent=note}
+  await fin(g.animate([{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"translateY(0)"}],{duration:D(350)}));
+  if(!RM)setTimeout(()=>fin(g.animate([{opacity:1},{opacity:0}],{duration:400,fill:"forwards"})).then(()=>g.remove()),2700);
+}
+function area(S,x,y,r,color,op,label,layer){
+  const a=thing(S,x,y,b=>{el("circle",{r,fill:color,opacity:op},b);el("circle",{r,fill:"none",stroke:color,"stroke-width":2,"stroke-dasharray":"6 5"},b);
+    if(label){const t=el("text",{y:-r+18,"text-anchor":"middle","font-size":12,"font-weight":700,fill:"var(--glow)",class:"pop"},b);t.textContent=label}},null,layer||S.under);
+  return fin(a.body.animate([{transform:"scale(0)"},{transform:"scale(1)"}],{duration:D(650),easing:"ease-out"})).then(()=>a);
+}
+function square(S,x,y,w,h,color,op,label){
+  const a=thing(S,x+w/2,y+h/2,b=>{el("rect",{x:-w/2,y:-h/2,width:w,height:h,fill:color,opacity:op},b);el("rect",{x:-w/2,y:-h/2,width:w,height:h,fill:"none",stroke:color,"stroke-width":2,"stroke-dasharray":"6 5"},b);
+    const t=el("text",{x:-w/2+8,y:-h/2+16,"font-size":12,"font-weight":700,fill:"var(--glow)",class:"pop"},b);t.textContent=label},null,S.under);
+  return fin(a.body.animate([{transform:"scale(0)"},{transform:"scale(1)"}],{duration:D(600)})).then(()=>a);
+}
+function conc(a,label){if(a.cr)a.cr.remove();const g=el("g",{},a.g);
+  el("circle",{r:26,fill:"none",stroke:"var(--warn)","stroke-width":2,"stroke-dasharray":"5 5",class:"spin"},g);
+  const t=el("text",{y:-33,"text-anchor":"middle","font-size":11,"font-weight":700,fill:"var(--warn)",class:"pop"},g);t.textContent="conc: "+label;
+  a.cr=g;return fin(g.animate([{opacity:0},{opacity:1}],{duration:D(400)}))}
+function glow(a){const c=el("circle",{r:23,fill:"var(--glow-soft)",stroke:"var(--glow)","stroke-width":3},null);a.body.insertBefore(c,a.body.firstChild);return fin(c.animate([{opacity:0},{opacity:1}],{duration:D(400)}))}
+function hud(S){const g=el("g",{},S.top);const t=el("text",{x:14,y:24,"font-size":12,"font-weight":700,fill:"var(--muted)"},g);t.textContent="PACT SLOTS";
+  S.slots=[0,1,2].map(i=>{const c=el("circle",{cx:102+i*22,cy:20,r:8,fill:"var(--accent)",stroke:"var(--accent)","stroke-width":2},g);c.style.transformBox="fill-box";c.style.transformOrigin="center";return c})}
+async function useSlot(S){const c=S.slots.find(c=>!c.dataset.u);if(!c)return;c.dataset.u="1";c.style.fill="transparent";
+  await fin(c.animate([{transform:"scale(1.8)"},{transform:"scale(1)"}],{duration:D(450)}))}
+function puff(S,x,y){const c=el("circle",{cx:x,cy:y,r:22,fill:"none",stroke:"var(--glow)","stroke-width":3},S.fx);c.style.transformBox="fill-box";c.style.transformOrigin="center";
+  return fin(c.animate([{transform:"scale(.3)",opacity:1},{transform:"scale(1.9)",opacity:0}],{duration:D(500),fill:"forwards"})).then(()=>c.remove())}
+function book(S,x,y){const a=thing(S,x,y,b=>{el("rect",{x:-24,y:-16,width:24,height:32,rx:2,fill:"var(--surface)",stroke:"var(--accent)","stroke-width":2},b);
+    el("rect",{x:0,y:-16,width:24,height:32,rx:2,fill:"var(--surface)",stroke:"var(--accent)","stroke-width":2},b);
+    for(let i=0;i<3;i++){el("line",{x1:-19,y1:-8+i*7,x2:-5,y2:-8+i*7,stroke:"var(--glow)","stroke-width":1.5},b);el("line",{x1:5,y1:-8+i*7,x2:19,y2:-8+i*7,stroke:"var(--glow)","stroke-width":1.5},b)}},null,S.over);
+  return fin(a.body.animate([{transform:"scaleX(0)"},{transform:"scaleX(1)"}],{duration:D(600),easing:"ease-out"})).then(()=>a)}
+async function clock(S,x,y,txt){const C=2*Math.PI*20;
+  const a=thing(S,x,y,b=>{el("circle",{r:20,fill:"var(--surface)",stroke:"var(--line)","stroke-width":4},b)},txt,S.top);
+  const p=el("circle",{r:20,fill:"none",stroke:"var(--accent)","stroke-width":4,transform:"rotate(-90)"},a.body);p.style.strokeDasharray=C;
+  await fin(p.animate([{strokeDashoffset:C},{strokeDashoffset:0}],{duration:D(1600),fill:"forwards"}));
+  if(!RM)setTimeout(()=>fade(a,0,400),1600)}
+function tag(S,x,y,txt,color,from){const w=txt.length*6.7+26;
+  const a=thing(S,from.x,from.y,b=>{el("rect",{x:-w/2,y:-14,width:w,height:28,rx:14,fill:"var(--surface)",stroke:color,"stroke-width":2},b);
+    const t=el("text",{y:5,"text-anchor":"middle","font-size":12.5,"font-weight":700},b);t.textContent=txt},null,S.top);
+  a.g.style.opacity=0;return Promise.all([fade(a,1,300),move(a,x,y,650)])}
+function hexPts(r){return [0,1,2,3,4,5].map(i=>{const t=Math.PI/3*i;return `${(r*Math.cos(t)).toFixed(1)},${(r*Math.sin(t)).toFixed(1)}`}).join(" ")}
+function hp(a,f){const g=el("g",{},a.g);el("rect",{x:-17,y:-26,width:34,height:5,rx:2,fill:"var(--line)"},g);
+  a.hb=el("rect",{x:-17,y:-26,width:34,height:5,rx:2,fill:"var(--warn)"},g);a.hb.style.transformBox="fill-box";a.hb.style.transformOrigin="left center";a.hb.style.transform=`scaleX(${f})`;a.hf=f}
+async function setHp(a,f){const k=[{transform:`scaleX(${a.hf})`},{transform:`scaleX(${f})`}];a.hf=f;a.hb.style.transform=`scaleX(${f})`;await fin(a.hb.animate(k,{duration:D(600)}))}
+
+/* ---------- scenes ---------- */
+const SC={};
+SC.eb={t:"Eldritch Blast",setup(S){S.w=W(S,90,130);S.g=E(S,330,130,"Goblin")},steps:[
+ ["Action: lanzás <b>Eldritch Blast</b>. A nivel 5 son <b>2 beams</b>, cada uno con su attack roll (+10).",async S=>{await pulse(S.w)}],
+ ["Beam 1 pega: <b>1d10 + 5</b> de force. El +5 viene de <b>Agonizing Blast</b>.",async S=>{await beam(S,S.w,S.g,"var(--accent)");pop(S,S.g,"7 + 5")}],
+ ["<b>Repelling Blast</b>: lo empujás 10 ft (2 casillas) alejándolo de vos.",async S=>{await push(S.w,S.g)}],
+ ["Beam 2: otro attack roll. Puede ir al mismo blanco o a otro distinto.",async S=>{await beam(S,S.w,S.g,"var(--glow)");pop(S,S.g,"4 + 5");await push(S.w,S.g)}],
+ ["Promedio ≈ <b>21 por turno</b>, gratis y a 120 ft. Es tu ataque por defecto.",async S=>{await pop(S,S.g,"≈ 21",{big:1})}]]};
+
+SC.toll={t:"Toll the Dead",setup(S){S.w=W(S,90,130);S.k=E(S,380,130,"Caballero · AC 18");hp(S.k,.5)},steps:[
+ ["El caballero tiene <b>AC 18</b> y ya está herido. Con attack roll le pegás poco.",async S=>{await shake(S.k)}],
+ ["<b>Toll the Dead</b> no usa attack roll: él hace un <b>WIS save</b> contra tu DC 18.",async S=>{
+   const bl=thing(S,S.k.x,S.k.y-48,b=>{el("path",{d:"M-11 9 Q-11 -11 0 -13 Q11 -11 11 9 Z",fill:"var(--glow)"},b);el("circle",{cy:12,r:3,fill:"var(--glow)"},b)},null,S.top);
+   await fin(bl.body.animate([{transform:"rotate(0)"},{transform:"rotate(-22deg)"},{transform:"rotate(18deg)"},{transform:"rotate(-12deg)"},{transform:"rotate(0)"}],{duration:D(800)}));
+   fade(bl,0,300);await dice(S,S.k,[9],0,"WIS save: 9 ✗")}],
+ ["Como ya estaba herido, el daño sube de 2d8 a <b>2d12 necrotic</b>.",async S=>{pop(S,S.k,"2d12 → 13");await setHp(S.k,.12)}],
+ ["Regla: <b>AC alta → saving throw</b>. AC baja → attack roll (EB).",async S=>{await pulse(S.w)}]]};
+
+SC.mockery={t:"Vicious Mockery",setup(S){S.w=W(S,80,140);S.f=A(S,370,140,"Fighter");S.o=E(S,422,140,"Ogro")},steps:[
+ ["El ogro está por pegarle a tu fighter.",async S=>{await lunge(S.o,-14)}],
+ ["Action: <b>Vicious Mockery</b>. El ogro hace un WIS save DC 18.",async S=>{await beam(S,S.w,S.o,"var(--glow)",{wave:1,w:3,dur:450});await dice(S,S.o,[6],0,"WIS save: 6 ✗")}],
+ ["Falla: <b>2d6 psychic</b> y disadvantage en su próximo attack roll.",async S=>{await pop(S,S.o,"2d6 → 8")}],
+ ["En su turno tira 2 d20 y usa el <b>menor</b>: el golpe falla.",async S=>{await dice(S,S.o,[17,5],1,"disadvantage");await lunge(S.o,-14);pop(S,S.f,"miss",{color:"var(--ok)"})}]]};
+
+SC.hand={t:"Mage Hand",setup(S){S.w=W(S,80,190);
+   el("line",{x1:240,y1:46,x2:430,y2:46,stroke:"var(--ink)","stroke-width":4},S.under);
+   S.lev=thing(S,330,62,b=>{el("rect",{x:-10,y:-12,width:20,height:10,rx:2,fill:"var(--surface)",stroke:"var(--ink)","stroke-width":2},b);
+     S.stick=el("g",{},b);el("line",{x1:0,y1:-4,x2:-12,y2:20,stroke:"var(--ink)","stroke-width":4,"stroke-linecap":"round"},S.stick);el("circle",{cx:-12,cy:20,r:4,fill:"var(--warn)"},S.stick)},"Palanca");
+   S.sp=thing(S,330,165,b=>{for(let i=-2;i<=2;i++)el("path",{d:`M${i*12-6} 12 L${i*12} -10 L${i*12+6} 12 Z`,fill:"var(--warn)"},b)});S.sp.g.style.opacity=0},steps:[
+ ["Hay una palanca sospechosa a 30 ft. No querés tocarla con tu mano.",async S=>{await pulse(S.lev)}],
+ ["Action: <b>Mage Hand</b>. Aparece una mano espectral a hasta 30 ft de vos.",async S=>{
+   S.h=thing(S,110,170,b=>{el("circle",{r:15,fill:"var(--accent-soft)",opacity:.8},b);el("path",{d:"M-7 8 V-3 M-2 8 V-9 M3 8 V-9 M8 8 V-3 M-9 8 H10",fill:"none",stroke:"var(--accent)","stroke-width":3,"stroke-linecap":"round"},b)},null,S.over);
+   S.h.g.style.opacity=0;await fade(S.h,1,300);await move(S.h,316,86,1000)}],
+ ["Con otra action la controlás: tira de la palanca desde lejos.",async S=>{S.stick.style.transform="rotate(-60deg)";await fin(S.stick.animate([{transform:"rotate(0)"},{transform:"rotate(-60deg)"}],{duration:D(450)}))}],
+ ["Salta la trampa, lejos tuyo. La mano no ataca ni carga más de 10 lb.",async S=>{await fade(S.sp,1,200);await shake(S.sp);await pop(S,S.sp,"¡trampa!")}]]};
+
+SC.hex={t:"Hex + EB",setup(S){hud(S);S.w=W(S,80,140);S.o1=E(S,360,100,"Orco");S.o2=E(S,460,190,"Orco 2")},steps:[
+ ["Bonus action: <b>Hex</b> al orco. Gasta 1 slot y arranca tu <b>concentration</b>.",async S=>{await useSlot(S);
+   S.m=thing(S,360,100,b=>el("polygon",{points:hexPts(27),fill:"none",stroke:"var(--glow)","stroke-width":2.5,class:"spin"},b),null,S.over);
+   S.m.g.style.opacity=0;await fade(S.m,1,400);await conc(S.w,"Hex")}],
+ ["Action: Eldritch Blast. Cada beam que pega suma <b>1d6 necrotic</b>.",async S=>{await beam(S,S.w,S.o1,"var(--accent)");pop(S,S.o1,"1d10+5+1d6");await wait(500);await beam(S,S.w,S.o1,"var(--glow)");await pop(S,S.o1,"≈ 28",{big:1,dy:50})}],
+ ["El orco cae, pero Hex <b>no se termina</b>.",async S=>{await fade(S.o1,.15,600)}],
+ ["En otro turno lo movés al orco 2 con una bonus action, <b>sin gastar slot</b>.",async S=>{await move(S.m,460,190,800);pop(S,S.o2,"Hex")}],
+ ["Con slot de nivel 3 dura hasta <b>8 h</b>: puede cubrir varias peleas si no perdés la concentration.",async S=>{await pulse(S.w)}]]};
+
+SC.hadar={t:"Hunger of Hadar",setup(S){hud(S);S.w=W(S,70,130);S.gs=[E(S,400,95,"Goblins"),E(S,450,150,""),E(S,370,165,""),E(S,480,90,"")]},steps:[
+ ["Action + 1 slot: <b>Hunger of Hadar</b>. Esfera de 20 ft de oscuridad y tentáculos. Concentration.",async S=>{await useSlot(S);await area(S,425,130,105,"var(--void)",.45,"20 ft");await conc(S.w,"Hadar")}],
+ ["Adentro: <b>blinded</b> y difficult terrain. 2d6 cold al empezar su turno, 2d6 acid al terminarlo (DEX save).",async S=>{pop(S,S.gs[0],"2d6 cold",{color:"var(--accent)"});await wait(500);await pop(S,S.gs[1],"2d6 acid")}],
+ ["Un goblin intenta salir para atacarte.",async S=>{await move(S.gs[2],285,155,900)}],
+ ["Eldritch Blast + <b>Repelling</b>: 10 ft de vuelta adentro.",async S=>{await beam(S,S.w,S.gs[2],"var(--accent)");await push(S.w,S.gs[2])}],
+ ["No la tires sobre aliados melee: también los ciega y les hace daño.",async S=>{await pulse(S.w)}]]};
+
+SC.counter={t:"Counterspell",setup(S){hud(S);S.w=W(S,80,130);S.m=E(S,460,120,"Mago");S.a=A(S,300,195,"Aliado")},steps:[
+ ["Turno del mago enemigo: empieza a lanzar <b>Fireball</b>.",async S=>{S.ch=thing(S,505,95,b=>el("circle",{r:13,fill:"var(--warn)",opacity:.85,class:"throb"},b),null,S.over);
+   await fin(S.ch.body.animate([{transform:"scale(0)"},{transform:"scale(1)"}],{duration:D(500)}))}],
+ ["<b>Reaction</b>: Counterspell. Gastás 1 slot aunque no sea tu turno.",async S=>{await useSlot(S);await beam(S,S.w,S.m,"var(--accent)",{wave:1,w:3,dur:380})}],
+ ["El mago hace un <b>CON save</b> contra tu DC 18.",async S=>{await dice(S,S.m,[7],0,"CON save: 7 + 3 = 10 ✗")}],
+ ["Falla: el Fireball se disipa y pierde su action.",async S=>{await fin(S.ch.body.animate([{transform:"scale(1)"},{transform:"scale(1.6)",opacity:.5},{transform:"scale(0)",opacity:0}],{duration:D(600),fill:"forwards"}));await pop(S,S.m,"se disipa",{color:"var(--ok)"})}],
+ ["Si hay casters enemigos, guardá un slot para esto.",async S=>{await pulse(S.w)}]]};
+
+SC.misty={t:"Misty Step",setup(S){hud(S);S.chain=el("line",{x1:270,y1:130,x2:322,y2:130,stroke:"var(--ink)","stroke-width":4,"stroke-dasharray":"6 4"},S.under);S.w=W(S,270,130);S.og=E(S,322,130,"Ogro")},steps:[
+ ["Un ogro te tiene <b>grappled</b>. Estás pegado a él.",async S=>{await shake(S.w)}],
+ ["Bonus action + 1 slot: <b>Misty Step</b>. Teleport hasta 30 ft a un lugar que veas.",async S=>{await useSlot(S);puff(S,S.w.x,S.w.y);await fade(S.w,0,250);S.chain.remove();setPos(S.w,90,130);puff(S,90,130);await fade(S.w,1,300)}],
+ ["Te queda la action: Eldritch Blast con Repelling.",async S=>{await beam(S,S.w,S.og,"var(--accent)");await push(S.w,S.og)}],
+ ["Ese turno no podés sumar otro spell con slot: ya usaste uno.",async S=>{await pulse(S.w)}]]};
+
+SC.whispers={t:"Dissonant Whispers",setup(S){hud(S);S.w=W(S,70,130);S.f=A(S,370,130,"Fighter");S.t=E(S,420,130,"Troll")},steps:[
+ ["Action + 1 slot: <b>Dissonant Whispers</b> al troll. WIS save DC 18.",async S=>{await useSlot(S);await beam(S,S.w,S.t,"var(--glow)",{wave:1,w:3,dur:450});await dice(S,S.t,[4],0,"WIS save: 4 ✗")}],
+ ["Falla: <b>5d6 psychic</b> y usa su reaction para alejarse de vos.",async S=>{pop(S,S.t,"5d6 → 17");await move(S.t,470,130,450)}],
+ ["Al irse del lado de tu fighter, recibe un <b>opportunity attack</b>.",async S=>{await lunge(S.f,24);pop(S,S.t,"OA");await move(S.t,560,130,700)}],
+ ["No es concentration: compatible con Hex o Hunger of Hadar activos.",async S=>{await pulse(S.w)}]]};
+
+SC.faerie={t:"Faerie Fire",setup(S){S.w=W(S,70,130);S.r=A(S,200,200,"Rogue");S.e1=E(S,385,95,"");S.e2=E(S,445,150,"");S.imp=E(S,370,170,"Imp invisible");S.imp.g.style.opacity=.15},steps:[
+ ["Action: <b>Faerie Fire</b>, cubo de 20 ft. Gratis 1/long rest. Concentration.",async S=>{await square(S,330,55,145,150,"var(--glow)",.12,"20 ft");await conc(S.w,"Faerie Fire")}],
+ ["Cada criatura adentro hace DEX save. Las que fallan brillan, y se ve hasta lo invisible.",async S=>{glow(S.e1);glow(S.e2);glow(S.imp);await fade(S.imp,1,600);await pop(S,S.imp,"¡visible!")}],
+ ["Los ataques contra ellos tienen <b>advantage</b>: 2 d20, se usa el mayor.",async S=>{await dice(S,S.e1,[4,16],1,"advantage");await beam(S,S.r,S.e1,"var(--ok)",{w:3})}],
+ ["Si el grupo ataca mucho, rinde más que Hex. Compiten por tu concentration.",async S=>{await pulse(S.w)}]]};
+
+SC.darkness={t:"Darkness",setup(S){S.w=W(S,70,130);S.a1=E(S,440,90,"Arquero");S.a2=E(S,490,165,"Arquero");S.f=A(S,300,200,"Fighter")},steps:[
+ ["Dos arqueros te tienen en la mira.",async S=>{beam(S,S.a1,S.w,"var(--warn)",{w:2});await wait(250);await beam(S,S.a2,S.w,"var(--warn)",{w:2});pop(S,S.w,"−7")}],
+ ["Action: <b>Darkness</b>. Esfera de 15 ft de oscuridad mágica sobre ellos. Concentration.",async S=>{await area(S,465,128,90,"var(--void)",.85,"15 ft",S.over);await conc(S.w,"Darkness")}],
+ ["No ven nada afuera: no pueden apuntarte.",async S=>{pop(S,S.a1,"?",{big:1});await pop(S,S.a2,"?",{big:1})}],
+ ["Tu darkvision <b>no</b> ve adentro, y un aliado adentro también queda a ciegas.",async S=>{await pulse(S.w)}]]};
+
+SC.servant={t:"Unseen Servant",setup(S){S.w=W(S,80,170);
+   el("line",{x1:480,y1:20,x2:480,y2:106,stroke:"var(--ink)","stroke-width":4},S.under);el("line",{x1:480,y1:174,x2:480,y2:250,stroke:"var(--ink)","stroke-width":4},S.under);
+   S.door=thing(S,480,140,b=>el("rect",{x:-6,y:-33,width:12,height:66,rx:2,fill:"var(--surface)",stroke:"var(--ink)","stroke-width":2},b),"Puerta");
+   S.door.body.style.transformBox="fill-box";S.door.body.style.transformOrigin="center top"},steps:[
+ ["Fuera de combate. Abrís el Book of Shadows: <b>Unseen Servant</b> como ritual.",async S=>{await book(S,120,125)}],
+ ["Ritual = <b>+10 minutos</b> de casting y <b>no gasta slot</b>.",async S=>{await clock(S,240,70,"10 min")}],
+ ["Aparece un sirviente invisible por 1 hora.",async S=>{S.sv=thing(S,150,195,b=>el("circle",{r:15,fill:"none",stroke:"var(--accent)","stroke-width":2,"stroke-dasharray":"4 4"},b),"Servant");S.sv.g.style.opacity=0;await fade(S.sv,1,500)}],
+ ["Con una bonus action le ordenás abrir la puerta.",async S=>{await move(S.sv,450,150,1200);S.door.body.style.transform="scaleY(.15)";await fin(S.door.body.animate([{transform:"scaleY(1)"},{transform:"scaleY(.15)"}],{duration:D(500)}))}],
+ ["Si había trampa, la recibe él. Vos ni te acercaste.",async S=>{pop(S,S.door,"¡trampa!");flash(S,S.sv,"var(--warn)");await fade(S.sv,0,700)}]]};
+
+SC.disk={t:"Tenser's Floating Disk",setup(S){S.w=W(S,80,170);S.chest=thing(S,330,166,b=>{el("rect",{x:-16,y:-12,width:32,height:22,rx:3,fill:"var(--glow-soft)",stroke:"var(--glow)","stroke-width":2},b);el("line",{x1:-16,y1:-3,x2:16,y2:-3,stroke:"var(--glow)","stroke-width":2},b)},"Cofre 200 lb")},steps:[
+ ["Ritual (10 min, sin slot): <b>Tenser's Floating Disk</b>.",async S=>{await clock(S,210,70,"10 min")}],
+ ["Aparece un disco de 3 ft a la altura de la cintura. Carga hasta 500 lb por 1 hora.",async S=>{S.d=thing(S,125,184,b=>el("ellipse",{rx:24,ry:6,fill:"var(--accent-soft)",stroke:"var(--accent)","stroke-width":2},b),null,S.under);S.d.g.style.opacity=0;await fade(S.d,1,500)}],
+ ["Cargás el cofre en el disco.",async S=>{await move(S.d,330,180,900)}],
+ ["Caminás y el disco te sigue a 20 ft.",async S=>{await Promise.all([move(S.w,500,170,1400),move(S.d,410,180,1500),move(S.chest,410,166,1500)])}],
+ ["Si te alejás más de 100 ft, el spell termina.",async S=>{await pulse(S.w)}]]};
+
+SC.agon={t:"Agonizing Blast",grid:false,setup(S){S.bars=[["Solo EB",11,"var(--muted)"],["+ Agonizing",21,"var(--accent)"],["+ Agonizing + Hex",28,"var(--glow)"]].map(([l,v,c],i)=>{const y=45+i*62;
+   const t=el("text",{x:20,y:y+18,"font-size":14,"font-weight":700},S.layer);t.textContent=l;
+   el("rect",{x:190,y,width:360,height:26,rx:6,fill:"var(--surface)",stroke:"var(--line)"},S.layer);
+   const b=el("rect",{x:190,y,width:v*12.5,height:26,rx:6,fill:c},S.layer);b.style.transformBox="fill-box";b.style.transformOrigin="left center";b.style.transform="scaleX(0)";
+   const n=el("text",{x:198+v*12.5,y:y+19,"font-size":16,"font-weight":700,fill:c},S.layer);n.textContent="≈ "+v;n.style.opacity=0;return {b,n}});
+   const t=el("text",{x:20,y:240,"font-size":12,fill:"var(--muted)"},S.layer);t.textContent="Daño promedio por turno con 2 beams que pegan"},steps:[
+ ["Sin invocations: 2 beams × 1d10 ≈ <b>11</b> por turno.",async S=>g(S,0)],
+ ["<b>Agonizing Blast</b> suma tu CHA (+5) a cada beam: ≈ <b>21</b>.",async S=>g(S,1)],
+ ["Con <b>Hex</b> activo, +1d6 por beam: ≈ <b>28</b>.",async S=>g(S,2)],
+ ["<b>Repelling Blast</b> no suma daño: suma control (push 10 ft por beam).",async S=>{await wait(300)}]]};
+async function g(S,i){const{b,n}=S.bars[i];b.style.transform="scaleX(1)";await fin(b.animate([{transform:"scaleX(0)"},{transform:"scaleX(1)"}],{duration:D(800),easing:"ease-out"}));n.style.opacity=1}
+
+SC.mind={t:"Eldritch Mind",setup(S){S.w=W(S,220,140);conc(S.w,"Hex");S.og=E(S,276,140,"Ogro")},steps:[
+ ["Estás concentrado en Hex y el ogro te pega <b>22</b>.",async S=>{await lunge(S.og,-14);await pop(S,S.w,"−22",{dy:45})}],
+ ["Concentration save: CON save contra <b>DC 10 o la mitad del daño</b>. Acá: DC 11.",async S=>{await pulse(S.w)}],
+ ["<b>Eldritch Mind</b>: tirás con advantage. 2 d20 + 4, usás el mayor.",async S=>{await dice(S,S.w,[5,14],1,"14 + 4 = 18 ✓")}],
+ ["Hex sigue. Lucky no suma acá porque ya tenés advantage.",async S=>{await fin(S.w.cr.animate([{opacity:1},{opacity:.3},{opacity:1}],{duration:D(600)}))}]]};
+
+SC.awake={t:"Awakened Mind",setup(S){S.w=W(S,90,140);S.r=A(S,210,175,"Rogue");S.gd=E(S,330,60,"Guardia")},steps:[
+ ["Bonus action: <b>Awakened Mind</b>. Elegís a alguien que veas a 30 ft o menos.",async S=>{S.ln=await beam(S,S.w,S.r,"var(--glow)",{wave:1,w:2,keep:1,dur:500})}],
+ ["Hablan telepáticamente por <b>5 minutos</b> (tu nivel), hasta <b>5 millas</b> (CHA mod).",async S=>{S.ln.remove();await move(S.r,520,190,1300);S.ln=await beam(S,S.w,S.r,"var(--glow)",{wave:1,w:2,keep:1,dur:500})}],
+ ["El guardia no oye nada: planes en silencio o coordinación a distancia.",async S=>{await pop(S,S.gd,"?",{big:1})}],
+ ["No hace falta compartir idioma.",async S=>{await pulse(S.w)}]]};
+
+SC.psychic={t:"Psychic Spells",setup(S){S.w=W(S,110,140);S.gd=E(S,400,140,"Guardia");
+   const c=el("g",{},S.w.g);el("line",{x1:-21,y1:-12,x2:21,y2:12,stroke:"var(--ink)","stroke-width":3},c);el("line",{x1:-21,y1:12,x2:21,y2:-12,stroke:"var(--ink)","stroke-width":3},c);el("rect",{x:-10,y:4,width:20,height:6,rx:2,fill:"var(--ink)"},c)},steps:[
+ ["Estás atado y amordazado: no podés hacer componentes <b>V</b> (voz) ni <b>S</b> (gestos).",async S=>{await shake(S.w)}],
+ ["<b>Psychic Spells</b>: tus enchantments e illusions de warlock no necesitan V ni S.",async S=>{await glow(S.w);await pulse(S.w)}],
+ ["Lanzás <b>Dissonant Whispers</b> igual: 5d6 psychic y el guardia huye.",async S=>{await beam(S,S.w,S.gd,"var(--glow)",{wave:1,w:3,dur:450});await dice(S,S.gd,[5],0,"WIS save: 5 ✗");pop(S,S.gd,"5d6 → 18");await move(S.gd,545,140,700)}],
+ ["Extra: cualquier spell de warlock que haga daño puede pasar a <b>psychic</b>.",async S=>{await pop(S,S.w,"force → psychic",{dy:48})}]]};
+
+SC.lucky={t:"Lucky",setup(S){S.w=W(S,150,140);S.b=E(S,206,140,"Bandido");S.lp=el("text",{x:14,y:26,"font-size":14,"font-weight":700,fill:"var(--accent)"},S.top);S.lp.textContent="Luck Points: 5 · tu AC: 13"},steps:[
+ ["Un bandido te ataca.",async S=>{await lunge(S.b,-14)}],
+ ["Gastás <b>1 Luck Point</b> para darle <b>disadvantage</b>. No usa tu reaction.",async S=>{S.lp.textContent="Luck Points: 4 · tu AC: 13";await fin(S.lp.animate([{opacity:.2},{opacity:1}],{duration:D(400)}));await pulse(S.w)}],
+ ["Tira 2 d20 y usa el menor: 7 + 3 = 10 contra tu AC 13. Falla.",async S=>{await dice(S,S.b,[18,7],1,"disadvantage");await pop(S,S.w,"miss",{color:"var(--ok)",dy:45})}],
+ ["También: advantage en tus propios d20 (attack rolls, checks, saves). 5 por long rest.",async S=>{await pulse(S.w)}]]};
+
+SC.tome={t:"Pact of the Tome",setup(S){S.w=W(S,80,140)},steps:[
+ ["<b>Pact of the Tome</b>: invocation que te da el <b>Book of Shadows</b>.",async S=>{S.bk=await book(S,140,110)}],
+ ["<b>3 cantrips extra</b>: Poison Spray, Fire Bolt, Vicious Mockery.",async S=>{await tag(S,375,60,"Cantrips: Poison Spray · Fire Bolt · Vicious Mockery","var(--ok)",{x:140,y:110})}],
+ ["<b>2 rituals</b> de nivel 1, siempre preparados.",async S=>{await tag(S,375,120,"Rituals: Unseen Servant · Floating Disk","var(--accent)",{x:140,y:110})}],
+ ["Y sirve como <b>spellcasting focus</b> (reemplaza componentes materiales sin costo).",async S=>{await tag(S,375,180,"Spellcasting focus","var(--glow)",{x:140,y:110})}]]};
+
+/* ---------- player ---------- */
+document.querySelectorAll(".player").forEach(root=>{
+  const ids=root.dataset.scenes.split(",");
+  root.innerHTML=`<div class="chips" role="group" aria-label="Escenas">${ids.map(id=>`<button type="button" data-id="${id}">${SC[id].t}</button>`).join("")}</div>
+  <div class="pl"><div class="stage"><svg viewBox="0 0 600 260" role="img"></svg></div>
+  <div class="side"><h4></h4><ol class="steps"></ol>
+  <div class="ctrl"><button type="button" class="play">▸ Reproducir</button><button type="button" class="next">Paso →</button><button type="button" class="reset">Reiniciar</button></div></div></div>`;
+  const svg=root.querySelector("svg"),ol=root.querySelector(".steps"),h4=root.querySelector("h4"),bPlay=root.querySelector(".play"),bNext=root.querySelector(".next");
+  let sc,S,idx=0,token=0,busy=false;
+  const lis=()=>[...ol.children];
+  function mark(){lis().forEach((li,i)=>{li.classList.toggle("done",i<idx);li.classList.toggle("on",busy&&i===idx)});
+    const end=idx>=sc.steps.length;bPlay.textContent=end?"↺ Repetir":"▸ Reproducir";bPlay.disabled=busy;bNext.disabled=busy||end}
+  function load(id){token++;busy=false;sc=SC[id];idx=0;S=stage(svg,sc.grid!==false);sc.setup(S);
+    svg.setAttribute("aria-label",sc.t);h4.textContent=sc.t;ol.innerHTML=sc.steps.map(s=>`<li>${s[0]}</li>`).join("");
+    root.querySelectorAll(".chips button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.id===id?"true":"false"));mark()}
+  async function step(){const my=token;busy=true;mark();try{await sc.steps[idx][1](S)}catch(e){}if(my!==token)return false;idx++;busy=false;mark();return true}
+  bPlay.addEventListener("click",async()=>{if(busy)return;if(idx>=sc.steps.length)load(sc.id);const my=token;
+    while(idx<sc.steps.length&&my===token){if(!await step())return;if(idx<sc.steps.length)await wait(900)}});
+  bNext.addEventListener("click",()=>{if(!busy&&idx<sc.steps.length)step()});
+  root.querySelector(".reset").addEventListener("click",()=>load(sc.id));
+  root.querySelector(".chips").addEventListener("click",e=>{const b=e.target.closest("button");if(b)load(b.dataset.id)});
+  ids.forEach(id=>SC[id].id=id);load(ids[0]);
+});
+
+/* ---------- routing ---------- */
+const views=[...document.querySelectorAll(".view")],names=views.map(v=>v.id.slice(2));
+views.forEach((v,i)=>{const p=document.createElement("nav");p.className="pager";
+  p.innerHTML=(i>0?`<a href="#${names[i-1]}">← ${views[i-1].dataset.title}</a>`:"<span></span>")+(i<views.length-1?`<a href="#${names[i+1]}">${views[i+1].dataset.title} →</a>`:"");v.appendChild(p)});
+function show(scroll){let h=location.hash.slice(1);if(!names.includes(h))h="inicio";
+  views.forEach(v=>v.hidden=v.id!=="v-"+h);
+  document.querySelectorAll(".tabs a").forEach(a=>a.setAttribute("aria-current",a.getAttribute("href")==="#"+h?"page":"false"));
+  if(scroll)scrollTo(0,0)}
+addEventListener("hashchange",()=>show(true));show(false);
+
+/* ---------- concentration lab ---------- */
+const CONC=new Set(["Hex","Hunger of Hadar","Bane","Faerie Fire","Summon Undead"]);
+const orb=document.getElementById("orb"),log=document.getElementById("log");let cur=null;
+const anim=(e,c)=>{e.classList.remove("shatter","keep");void e.offsetWidth;e.classList.add(c)};
+const setOrb=s=>{cur=s;orb.textContent=s||"Sin concentration";orb.classList.toggle("empty",!s)};
+document.getElementById("spellBtns").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const s=b.dataset.s;
+  if(s==="__hit"){if(!cur){log.innerHTML="Sin concentration activa: el daño no corta nada.";return}
+    anim(orb,"keep");log.innerHTML=`Concentration save: CON +4 vs <b>DC 11</b> con advantage. Casi siempre pasa: <span class="good">${cur} sigue</span>.`;return}
+  if(CONC.has(s)){if(cur===s){log.innerHTML=`<b>${s}</b> ya está activo. Relanzarlo gasta otro slot sin ganar nada.`;return}
+    const old=cur;setOrb(s);anim(orb,"shatter");log.innerHTML=old?`<span class="bad">${old} se cortó.</span> Ahora concentrás en <b>${s}</b>.`:`Concentrando en <b>${s}</b>.`;return}
+  anim(orb,"keep");log.innerHTML=cur?`<b>${s}</b> no es concentration: <span class="good">${cur} sigue activo.</span>`:`<b>${s}</b> no es concentration: no ocupa la esfera.`});
+
+/* ---------- slot tracker ---------- */
+const pips=[...document.querySelectorAll(".pip")],lbl=document.getElementById("pipsLbl"),slog=document.getElementById("slog"),mcBtn=document.getElementById("mc"),castBtn=document.getElementById("cast");
+let left=3,mcUsed=false;
+const draw=p=>{pips.forEach((e,i)=>{const was=e.classList.contains("used");e.classList.toggle("used",i>=left);if(p&&was&&i<left){e.classList.remove("pop2");void e.offsetWidth;e.classList.add("pop2")}});
+  lbl.textContent=`${left} / 3`;castBtn.disabled=left===0;mcBtn.disabled=mcUsed||left===3};
+const spend=()=>{if(!left){slog.textContent="Sin slots: EB y cantrips. Pensá en Magical Cunning o un short rest.";return}
+  left--;draw();slog.textContent=left===1?"Queda 1 slot: reservalo para Counterspell o Misty Step.":left===0?"0 slots. EB sigue pegando ≈ 21 por turno.":`Quedan ${left} slots.`};
+pips.forEach(p=>p.addEventListener("click",spend));castBtn.addEventListener("click",spend);
+document.getElementById("sr").addEventListener("click",()=>{left=3;draw(true);slog.textContent="Short rest: vuelven los 3 slots."});
+mcBtn.addEventListener("click",()=>{if(mcUsed)return;left=Math.min(3,left+2);mcUsed=true;draw(true);slog.textContent="Magical Cunning: +2 slots. No vuelve hasta el próximo long rest."});
+document.getElementById("lr").addEventListener("click",()=>{left=3;mcUsed=false;draw(true);slog.textContent="Long rest: 3 slots, Magical Cunning, Faerie Fire y Darkness de vuelta."});
+draw();
+})();
+</script>
+
+</body>
+</html>

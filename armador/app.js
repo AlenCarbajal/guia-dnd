@@ -467,37 +467,37 @@ function hbForm(t,id,o){const b=`HB.${t}.${id}`;
 
 /* ---------- sheet ---------- */
 const SHEET_CSS=`
-.pg{width:816px;min-height:1056px;margin:0 auto 24px;background:#fffdf8;color:#1d1a24;padding:34px 38px;box-shadow:0 2px 14px rgba(20,10,40,.18);font:11px/1.35 "Alegreya Sans",system-ui,sans-serif;position:relative;box-sizing:border-box}
+.pg{width:816px;min-height:1056px;margin:0 auto 24px;background:#FFFCF8;color:#3A2E4D;padding:34px 38px;box-shadow:0 2px 14px rgba(20,10,40,.18);font:10.6px/1.38 "Mulish",system-ui,sans-serif;position:relative;box-sizing:border-box}
 .pg *{box-sizing:border-box}
-.pg h2{font:700 13px/1 "Grenze",Georgia,serif;letter-spacing:.06em;text-transform:uppercase;margin:0 0 6px;color:#3a2a6b}
-.pg .bx{border:1.4px solid #2b2350;border-radius:8px;padding:7px 9px;background:#fff}
-.pg .lab{font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:#6a6280;font-weight:700}
-.pg .big{font:700 22px/1 "Grenze",Georgia,serif;color:#1d1a24}
+.pg h2{font:600 11.5px/1 "Josefin Sans",system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;margin:0 0 6px;color:#2B6E70}
+.pg .bx{border:1.2px solid #3A2E4D;border-bottom-width:3.5px;border-radius:0;padding:7px 9px;background:#fff}
+.pg .lab{font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:#6B5A72;font-weight:700}
+.pg .big{font:400 22px/1 "Josefin Sans",system-ui,sans-serif;color:#2B6E70}
 .pg .row{display:flex;gap:8px}.pg .col{display:flex;flex-direction:column;gap:8px}
 .s-top{display:grid;grid-template-columns:1.6fr 1fr 78px 1.25fr;gap:8px;margin-bottom:8px}
-.s-name{font:700 24px/1.05 "Grenze",Georgia,serif;border-bottom:1.4px solid #2b2350;padding-bottom:3px;margin-bottom:5px}
+.s-name{font:300 26px/1.05 "Josefin Sans",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;border-bottom:1.4px solid #3A2E4D;padding-bottom:3px;margin-bottom:5px}
 .s-meta{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px}
-.s-meta div{border-bottom:1px solid #d9d4e6;padding:1px 0}.s-meta b{display:block;font-size:11.5px}
-.s-ac{display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.6px solid #2b2350;border-radius:8px 8px 40px 40px;background:#fff}
+.s-meta div{border-bottom:1px solid #EAD3C2;padding:1px 0}.s-meta b{display:block;font-size:11.5px}
+.s-ac{display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.2px solid #3A2E4D;border-bottom-width:3.5px;border-radius:0 0 40px 40px;background:#E3F2EF}
 .s-hp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
-.s-hp>div{text-align:center}.s-hp .ln{border-bottom:1px solid #2b2350;height:22px;margin-top:2px}
-.dots{display:inline-flex;gap:3px;vertical-align:middle}.dots i{width:9px;height:9px;border:1.2px solid #2b2350;border-radius:50%;display:inline-block}.dots i.on{background:#2b2350}
+.s-hp>div{text-align:center}.s-hp .ln{border-bottom:1px solid #3A2E4D;height:22px;margin-top:2px}
+.dots{display:inline-flex;gap:3px;vertical-align:middle}.dots i{width:8px;height:8px;border:1.2px solid #3A2E4D;transform:rotate(45deg);margin:0 1px;display:inline-block}.dots i.on{background:#2F7477;border-color:#2F7477}
 .s-main{display:grid;grid-template-columns:2fr 3fr;gap:8px}
 .s-abs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ab{border:1.4px solid #2b2350;border-radius:8px;background:#fff;padding:6px 7px}
-.ab .hd{display:flex;align-items:center;gap:6px;border-bottom:1px solid #d9d4e6;padding-bottom:4px;margin-bottom:4px}
-.ab .m{font:700 20px/1 "Grenze",Georgia,serif;width:38px;text-align:center}.ab .sc{border:1.2px solid #2b2350;border-radius:999px;padding:0 6px;font-weight:700}
+.ab{border:1.2px solid #3A2E4D;border-bottom-width:3.5px;border-radius:0;background:#fff;padding:6px 7px}
+.ab .hd{display:flex;align-items:center;gap:6px;border-bottom:1px solid #EAD3C2;padding-bottom:4px;margin-bottom:4px}
+.ab .m{font:700 20px/1 "Josefin Sans",system-ui,sans-serif;width:38px;text-align:center}.ab .sc{border:1.2px solid #3A2E4D;border-radius:0;padding:0 6px;font-weight:700}
 .ab .ln2{display:flex;align-items:center;gap:5px;padding:1px 0}.ab .ln2 span:last-child{margin-left:auto;font-weight:700;min-width:22px;text-align:right}
-.ab .ln2.sv{font-weight:700;border-bottom:1px dashed #d9d4e6;margin-bottom:2px}
+.ab .ln2.sv{font-weight:700;border-bottom:1px dashed #EAD3C2;margin-bottom:2px}
 .stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.stats4 .bx{text-align:center}
-.tbl{width:100%;border-collapse:collapse;font-size:10.5px}.tbl th{font-size:8.5px;text-transform:uppercase;letter-spacing:.06em;color:#6a6280;text-align:left;border-bottom:1.2px solid #2b2350;padding:2px 3px}
-.tbl td{border-bottom:1px solid #e3dfeb;padding:3px;vertical-align:top}
+.tbl{width:100%;border-collapse:collapse;font-size:10.5px}.tbl th{font-size:8.5px;text-transform:uppercase;letter-spacing:.06em;color:#6B5A72;text-align:left;border-bottom:1.2px solid #3A2E4D;padding:2px 3px}
+.tbl td{border-bottom:1px solid #F1E2D6;padding:3px;vertical-align:top}
 .flist2{columns:2;column-gap:14px;font-size:10.3px}.flist2 p{margin:0 0 4px;break-inside:avoid}
 .full p{margin:0 0 6px}.cols2{columns:2;column-gap:18px}.cols2 .it{break-inside:avoid;margin-bottom:8px}
-.it h4{margin:0 0 2px;font:700 12px/1.1 "Grenze",Georgia,serif}.it .meta{font-size:9px;color:#6a6280;margin-bottom:2px}
+.it h4{margin:0 0 2px;font:700 12px/1.1 "Josefin Sans",system-ui,sans-serif}.it .meta{font-size:9px;color:#6B5A72;margin-bottom:2px}
 .slots{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;text-align:center}.slots .bx{padding:4px 2px}
-.ft{position:absolute;bottom:14px;left:38px;right:38px;font-size:8px;color:#8a83a0;display:flex;justify-content:space-between}
-.hr-tag{display:inline-block;background:#efe9fb;color:#4b2fb0;border-radius:4px;padding:0 4px;font-size:9px;font-weight:700}
+.ft{position:absolute;bottom:14px;left:38px;right:38px;font-size:8px;color:#9C8FAA;display:flex;justify-content:space-between}
+.hr-tag{display:inline-block;background:#FCEAE5;color:#A8473B;border-radius:4px;padding:0 4px;font-size:9px;font-weight:700}
 `;
 const PRINT_CSS="@media print{body *{visibility:hidden}#sheet,#sheet *{visibility:visible}#sheet{position:absolute;left:0;top:0}.pg{box-shadow:none;margin:0;page-break-after:always}}";
 function dots(n,on){return `<span class="dots">${Array.from({length:n},(_,i)=>`<i class="${i<on?"on":""}"></i>`).join("")}</span>`}
@@ -509,7 +509,7 @@ function sheetHTML(c,K){
   const abBox=a=>`<div class="ab"><div class="hd"><span class="m">${sg(K.mod[a])}</span><div><div class="lab">${ABF[a]}</div><span class="sc">${K.ab[a]}</span> ${hr("ab:"+a)}</div></div>
     <div class="ln2 sv">${dots(1,K.saveP.has(a)?1:0)}<span>Saving Throw</span><span>${sg(K.save[a])}</span></div>
     ${(SK[a]||[]).map(([id,n])=>`<div class="ln2">${dots(1,K.skP[id]?1:0)}${K.skP[id]>1?dots(1,1):""}<span>${n}</span><span>${sg(K.sk[id])}</span></div>`).join("")}</div>`;
-  const fe=g=>K.fe.filter(f=>f.g===g).map(f=>`<p><b>${esc(f.n)}.</b> ${esc(first(f.d))} <i style="color:#8a83a0">${esc(f.src)}</i></p>`).join("")||"<p>—</p>";
+  const fe=g=>K.fe.filter(f=>f.g===g).map(f=>`<p><b>${esc(f.n)}.</b> ${esc(first(f.d))} <i style="color:#9C8FAA">${esc(f.src)}</i></p>`).join("")||"<p>—</p>";
   const foot=n=>`<div class="ft"><span>${esc(c.info.name)} · ${esc(cls)}</span><span>Página ${n}</span></div>`;
   /* page 1 */
   let p1=`<div class="pg"><div class="s-top"><div class="bx"><div class="s-name">${esc(c.info.name)}</div><div class="s-meta">
@@ -543,10 +543,10 @@ function sheetHTML(c,K){
     <div class="bx"><div class="row"><div style="flex:1"><div class="lab">Alignment</div><b>${esc(c.info.alignment||"—")}</b></div><div style="flex:2"><div class="lab">Languages</div><b>${esc(c.info.languages||"—")}</b></div></div></div>
     <div class="bx"><h2>Equipment</h2>${c.armor!=="none"&&SRD.armor[c.armor]?`<p style="margin:0">Armor: ${esc(SRD.armor[c.armor].n)}${c.shield?" + Shield":""}</p>`:c.shield?"<p style=\"margin:0\">Shield</p>":""}<div>${md(c.equipment)}</div>
      <div class="row" style="margin-top:6px">${["cp","sp","ep","gp","pp"].map(k=>`<div class="bx" style="flex:1;text-align:center;padding:3px"><div class="lab">${k}</div><b>${c.coins[k]||0}</b></div>`).join("")}</div></div>
-    <div class="bx"><h2>Magic Item Attunement</h2><p style="margin:0;color:#6a6280">No se usan magic items en la campaña.</p>${dots(3,0)}</div></div></div>${foot(2)}</div>`;
+    <div class="bx"><h2>Magic Item Attunement</h2><p style="margin:0;color:#6B5A72">No se usan magic items en la campaña.</p>${dots(3,0)}</div></div></div>${foot(2)}</div>`;
   /* page 3: features full */
   const grp={class:"Class Features",species:"Species Traits",feat:"Feats"};
-  let p3=`<div class="pg"><h2 style="font-size:16px">Rasgos y feats — texto completo</h2><div class="cols2">${Object.entries(grp).map(([g,t])=>`<div class="it"><h4 style="color:#3a2a6b;text-transform:uppercase;letter-spacing:.05em">${t}</h4></div>`+K.fe.filter(f=>f.g===g&&f.d).map(f=>`<div class="it"><h4>${esc(f.n)}</h4><div class="meta">${esc(f.src)}</div>${md(f.d)}</div>`).join("")).join("")}</div>${foot(3)}</div>`;
+  let p3=`<div class="pg"><h2 style="font-size:16px">Rasgos y feats — texto completo</h2><div class="cols2">${Object.entries(grp).map(([g,t])=>`<div class="it"><h4 style="color:#2B6E70;text-transform:uppercase;letter-spacing:.05em">${t}</h4></div>`+K.fe.filter(f=>f.g===g&&f.d).map(f=>`<div class="it"><h4>${esc(f.n)}</h4><div class="meta">${esc(f.src)}</div>${md(f.d)}</div>`).join("")).join("")}</div>${foot(3)}</div>`;
   /* page 4: spells full */
   let n=4;let p4=K.spells.length?`<div class="pg"><h2 style="font-size:16px">Grimorio</h2><div class="cols2">${K.spells.map(s=>`<div class="it"><h4>${esc(s.d.n)}</h4><div class="meta">${s.d.l?"Nivel "+s.d.l:"Cantrip"} ${esc(s.d.s)} · ${esc(s.d.t)} · ${esc(s.d.r)} · ${esc(s.d.c)}${s.d.m?" ("+esc(s.d.m)+")":""} · ${esc(s.d.du)}${s.d.co?" · Concentration":""}${s.d.ri?" · Ritual":""}</div>${md(s.d.d)}${s.d.h?`<br><i>A mayor nivel.</i> ${md(s.d.h)}`:""}</div>`).join("")}</div>${foot(n++)}</div>`:"";
   /* page 5: house rules */
@@ -557,11 +557,11 @@ function sheetHTML(c,K){
    <div class="it"><h4>Overrides manuales</h4><ul>${K.ovs.map(k=>`<li>${esc(tLabel(k.replace(/^skill:/,"skill:")))||esc(k)} = ${esc(c.ov[k])}</li>`).join("")||"<li>Ninguno.</li>"}</ul></div>
    <div class="it"><h4>Contenido homebrew en uso</h4><ul>${hbUsed.join("")||"<li>Ninguno.</li>"}</ul></div>
    ${c.info.notes?`<div class="it"><h4>Notas</h4>${md(c.info.notes)}</div>`:""}
-   <p class="meta" style="margin-top:20px;color:#8a83a0">Contenido SRD 5.2 © Wizards of the Coast, CC-BY-4.0.</p>${foot(n)}</div>`;
+   <p class="meta" style="margin-top:20px;color:#9C8FAA">Contenido SRD 5.2 © Wizards of the Coast, CC-BY-4.0.</p>${foot(n)}</div>`;
   return p1+p2+p3+p4+p5}
 function standalone(c){const K=compute(c);return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(c.info.name)} — hoja</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze:wght@600;700&family=Alegreya+Sans:ital,wght@0,400;0,700;1,400&display=swap">
-<style>body{background:#e9e6ef;margin:0;padding:20px 0}${SHEET_CSS}@media print{body{background:#fff;padding:0}.pg{box-shadow:none;margin:0;page-break-after:always}}</style></head><body><div id="sheet">${sheetHTML(c,K)}</div></body></html>`}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Mulish:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>body{background:#F6E8DF;margin:0;padding:20px 0}${SHEET_CSS}@media print{body{background:#fff;padding:0}.pg{box-shadow:none;margin:0;page-break-after:always}}</style></head><body><div id="sheet">${sheetHTML(c,K)}</div></body></html>`}
 
 /* ---------- files ---------- */
 async function saveFile(name,data){

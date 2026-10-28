@@ -28,7 +28,7 @@ function setP(o,p,v){const ks=p.split(".");let a=o;for(let i=0;i<ks.length-1;i++
   const l=ks[ks.length-1];if(v===undefined)delete a[l];else a[l]=v}
 
 /* ---------- state ---------- */
-let CH={},HB={},cur=null,view="build",step="basicos",hbType="spells",hbEdit=null,spQ="",spLv="",spOnly=true,spSrc="";
+let CH={},HB={},cur=null,view="build",step="origen",hbType="spells",hbEdit=null,spQ="",spLv="",spOnly=true,spSrc="";
 function blankHB(){return {spells:{},feats:{},species:{},backgrounds:{},classes:{},subclasses:{}}}
 HB=blankHB();
 function lib(t){return Object.assign({},SRD[t]||{},HB[t]||{})}
@@ -242,33 +242,67 @@ function compute(c){
 const skName=id=>(SRD.skills.find(s=>s[0]===id)||[0,id])[1];
 
 /* ---------- UI shell ---------- */
-const STEPS=[["basicos","Básicos"],["especie","Especie"],["background","Background"],["clases","Clases"],["atributos","Atributos"],["feats","Mejoras y feats"],["skills","Skills y training"],
-  ["spells","Spells"],["equipo","Equipo y ataques"],["rasgos","Rasgos y recursos"],["reglas","Reglas de la casa"],["homebrew","Homebrew"],["detalles","Detalles"],["datos","Importar / exportar"]];
+const CHAPTERS=[["origen","Origen",["basicos","especie","background","detalles"]],["clase","Clase",["clases","skills"]],["atributos","Atributos",["atributos","feats"]],
+  ["magia","Magia",["spells"]],["equipo","Equipo y rasgos",["equipo","rasgos"]],["reglas","Reglas de la casa",["reglas","homebrew"]]];
+const ROMAN=["I","II","III","IV","V"];
+let ovOpen=null;
+const isOv=(c,K,k)=>K.mods.some(m=>m.t===k)||(c.ov[k]!==undefined&&c.ov[k]!=="");
+function invInfo(c,K){const r=K.res.find(r=>r.n==="Eldritch Invocations");const max=r?+r.v||0:0;const have=c.features.filter(f=>/invocation/i.test(f.src||"")).length;return {max,have}}
+function pending(c,K){
+  const P={origen:0,clase:0,atributos:0,magia:0,equipo:0};
+  K.warn.forEach(w=>{if(/^Background/.test(w))P.origen++;else if(/skills de su lista|Multiclase/.test(w))P.clase++;else if(/cantrips de|prepared de/.test(w))P.magia++;
+    else if(/training|armor|pide STR/i.test(w))P.equipo++;else P.atributos++});
+  K.casters.forEach(e=>{P.magia+=Math.max(0,e.prepared-e.np)+Math.max(0,e.cantrips-e.nc)});
+  const iv=invInfo(c,K);P.magia+=Math.max(0,iv.max-iv.have);return P}
 function render(){
-  const c=C();if(!c)return;const K=compute(c);
-  $("#chars").innerHTML=Object.values(CH).sort((a,b)=>a.info.name.localeCompare(b.info.name)).map(x=>opt(x.id,x.info.name||"(sin nombre)",x.id===cur)).join("");
+  const c=C();if(!c)return;const K=compute(c);const P=pending(c,K);
+  $("#cname").textContent=c.info.name||"(sin nombre)";
+  $("#cmeta").textContent=K.cls.map(k=>k.d.n+" "+k.lv).join(" / ")+(K.cls.find(k=>k.s)?" · "+K.cls.filter(k=>k.s).map(k=>k.s.n.replace(/ Patron$/,"")).join(", "):"");
+  $("#charlist").innerHTML=Object.values(CH).sort((a,b)=>a.info.name.localeCompare(b.info.name)).map(x=>`<button type="button" data-act="pick" data-v="${x.id}"${x.id===cur?' aria-current="true"':""}>${esc(x.info.name||"(sin nombre)")}</button>`).join("");
   document.querySelectorAll("[data-view]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.view===view?"true":"false"));
-  $("#build").hidden=view!=="build";$("#sheetView").hidden=view!=="sheet";
+  $("#build").hidden=view!=="build";$("#sheetView").hidden=view!=="sheet";$("#nav").hidden=view!=="build";$("#bottombar").hidden=view!=="build";
   if(view==="build"){
-    $("#nav").innerHTML=STEPS.map(([k,l])=>`<button type="button" data-act="step" data-v="${k}" aria-current="${k===step?"step":"false"}">${l}</button>`).join("");
-    $("#step").innerHTML=SECT[step](c,K);renderSummary(K)}
+    const nRules=K.mods.length+K.ovs.length;
+    $("#nav").innerHTML=CHAPTERS.map(([k,l],i)=>{const isR=k==="reglas";const n=P[k]||0;
+      const tag=isR?(nRules?nRules+" activa"+(nRules>1?"s":""):"Ninguna"):(k===step?ROMAN[i]+" · Acá":n?ROMAN[i]+" · "+n+" pendiente"+(n>1?"s":""):ROMAN[i]+" · Listo");
+      const cls=isR?"st-rule":k===step?"st-on":n?"st-todo":"st-done";
+      return `<a href="#" class="stone ${cls}${isR?" st-right":""}" data-act="step" data-v="${k}"${k===step?' aria-current="page"':""}><small>${tag}</small><span>${l}</span></a>`}).join("");
+    {const on=$("#nav .st-on");if(on&&$("#nav").scrollWidth>$("#nav").clientWidth)$("#nav").scrollLeft=on.offsetLeft-16}
+    const ch=CHAPTERS.find(x=>x[0]===step);
+    const idx=CHAPTERS.findIndex(x=>x[0]===step);const prev=CHAPTERS[idx-1],next=CHAPTERS[idx+1];
+    const title=ch?ch[1]:"Importar / exportar";const secs=ch?ch[2]:["datos"];
+    $("#step").innerHTML=`<h2 class="chtitle">${esc(title)}</h2>`+secs.map(s=>SECT[s](c,K)).join("")+
+      `<nav class="pager">${prev?`<a href="#" class="back" data-act="step" data-v="${prev[0]}">← ${prev[1]}</a>`:"<span></span>"}${next?`<a href="#" class="fwd" data-act="step" data-v="${next[0]}">Siguiente · ${next[1]} →</a>`:""}</nav>`;
+    const tot=Object.values(P).reduce((a,b)=>a+b,0);const first=CHAPTERS.find(([k])=>P[k]);
+    $("#bottombar").innerHTML=`<span>${tot?tot+(tot>1?" elecciones pendientes":" elección pendiente"):"Todo listo"}</span>${next?`<a href="#" data-act="step" data-v="${next[0]}">${next[1]} →</a>`:`<a href="#" data-act="view" data-v="sheet">Hoja →</a>`}`;
+    renderSummary(K)}
   else{$("#sheet").innerHTML=sheetHTML(c,K);$("#printBtn").hidden=!!(window.claude&&window.claude.use)}
 }
 function renderSummary(K){
-  K=K||compute(C());const c=C();
-  const row=(key,label,val,raw)=>{const ov=c.ov[key];const b=(K.B[key]||[]).map(([l,v])=>`${esc(l)} ${typeof v==="number"?sg(v):esc(v)}`).join(" · ");
-    return `<div class="sm-row${ov!==undefined&&ov!==""?" ov":""}"><span class="sm-l">${label}</span><b class="sm-v">${esc(val)}</b>
-      <input class="sm-o" type="number" aria-label="Override ${esc(label)}" placeholder="✎" data-k="ov.${key}" data-t="n" data-sum="1" value="${ov===undefined?"":esc(ov)}"><small class="sm-b">${b}</small></div>`};
-  let h=`<div class="sm-head"><b>${esc(c.info.name)}</b><span>${K.cls.map(k=>k.d.n+" "+k.lv+(k.s?" ("+k.s.n+")":"")).join(" / ")}</span></div>`;
-  if(K.warn.length)h+=`<div class="warns" role="status"><b>${K.warn.length} aviso${K.warn.length>1?"s":""}</b><ul>${K.warn.map(w=>`<li>${esc(w)}</li>`).join("")}</ul></div>`;
-  h+=`<div class="sm-ab">${AB.map(a=>`<div class="${c.ov["ab:"+a]!==undefined&&c.ov["ab:"+a]!==""?"ov":""}"><small>${ABN[a]}</small><b>${sg(K.mod[a])}</b><span>${K.ab[a]}</span></div>`).join("")}</div>`;
-  h+=row("ac","AC",K.ac)+row("hp","HP máx",K.hp)+row("pb","Proficiency Bonus",sg(K.pb))+row("init","Initiative",sg(K.init))+row("speed","Speed",K.speed+" ft")+row("pp","Passive Perception",K.pp);
-  h+=AB.map(a=>row("ab:"+a,ABF[a],K.ab[a])).join("");
-  h+=AB.map(a=>row("save:"+a,ABN[a]+" save"+(K.saveP.has(a)?" ●":""),sg(K.save[a]))).join("");
-  K.casters.forEach(e=>{h+=row("dc:"+e.id,e.n+" spell DC",e.dc)+row("satk:"+e.id,e.n+" spell attack",sg(e.atk))});
-  K.slots.forEach((n,i)=>{if(n||c.ov["slot:"+(i+1)]!==undefined)h+=row("slot:"+(i+1),"Slots nivel "+(i+1),n)});
-  if(K.pact)h+=row("pact","Pact slots",K.pact.n)+row("pactLv","Nivel pact slots",K.pact.lv);
-  $("#summary").innerHTML=h}
+  const c=C();K=K||compute(c);const P=pending(c,K);
+  const pen=(key,label)=>`<button type="button" class="pen" data-act="ov" data-v="${key}" aria-label="Pisar ${esc(label)}" aria-expanded="${ovOpen===key}"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 16 16"><path d="M3 13l1-3 7-7 2 2-7 7-3 1z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>`;
+  const bd=key=>(K.B[key]||[]).map(([l,v])=>`${esc(l)} ${typeof v==="number"?sg(v):esc(v)}`).join(" · ");
+  const ovIn=(key,label)=>ovOpen===key?`<div class="ovbox"><label>Pisar ${esc(label)}<input type="number" data-k="ov.${key}" data-t="n" data-rr="1" value="${c.ov[key]===undefined?"":esc(c.ov[key])}" placeholder="vacío = calculado"></label><small>${bd(key)}</small></div>`:"";
+  const dia=k=>isOv(c,K,k)?'<i class="dia" title="Regla de la casa u override"></i>':"";
+  const big=(key,label,val,tone)=>`<div class="big ${tone}">${dia(key)}<small>${label}</small><b>${esc(val)}</b>${pen(key,label)}</div>`;
+  const row=(key,label,val,sub)=>`<div class="sr${ovOpen===key?" open":""}"><span>${label}${sub?`<small>${esc(sub)}</small>`:""}</span><b>${esc(val)}${dia(key)}</b>${pen(key,label)}</div>${ovIn(key,label)}`;
+  const tot=Object.values(P).reduce((a,b)=>a+b,0);const firstP=CHAPTERS.find(([k])=>P[k]);
+  let h="";
+  if(tot)h+=`<div class="todo"><i class="dia gold"></i><span><b>${tot}${tot>1?" elecciones pendientes":" elección pendiente"}</b>${K.warn.length?`<small>${K.warn.map(esc).join(" · ")}</small>`:""}</span>${firstP?`<a href="#" data-act="step" data-v="${firstP[0]}">Ir</a>`:""}</div>`;
+  h+=`<div class="bigs">${big("ac","AC",K.ac,"t-teal")}${big("hp","HP",K.hp,"t-coral")}${big("pb","PB",sg(K.pb),"t-gold")}</div>${["ac","hp","pb"].map(k=>ovIn(k,k.toUpperCase())).join("")}`;
+  h+=`<div class="blk lav">${row("init","Initiative",sg(K.init))}${row("speed","Speed",K.speed+" ft")}${row("pp","Passive Perception",K.pp)}
+    ${K.casters.map(e=>row("dc:"+e.id,"Spell save DC"+(K.casters.length>1?" · "+e.n:""),e.dc,"8 + PB + "+ABN[e.ab])+row("satk:"+e.id,"Spell attack"+(K.casters.length>1?" · "+e.n:""),sg(e.atk))).join("")}</div>`;
+  if(K.pact)h+=`<div class="blk teal"><div class="blkh"><span>Pact slots · nivel ${K.pact.lv}</span><small>Short rest</small></div><div class="gems">${Array.from({length:K.pact.n},()=>`<svg aria-hidden="true" width="30" height="40" viewBox="0 0 34 44"><polygon points="17,2 32,16 17,42" fill="#2F7477"/><polygon points="17,2 2,16 17,42" fill="#4FA3A0"/><polygon points="17,2 32,16 17,22 2,16" fill="#8FD0C8"/></svg>`).join("")}${dia("pact")}${pen("pact","Pact slots")}</div>${ovIn("pact","pact slots")}</div>`;
+  if(K.slots.some(n=>n))h+=`<div class="blk teal"><div class="blkh"><span>Spell slots</span><small>Long rest</small></div><div class="slotline">${K.slots.map((n,i)=>n?`<span><small>${i+1}</small><b>${n}</b></span>`:"").join("")}</div></div>`;
+  h+=`<details class="blk more"><summary>Atributos, saves y más</summary>
+    <div class="miniab">${AB.map(a=>`<div><small>${ABN[a]}</small><b>${sg(K.mod[a])}</b><span>${K.ab[a]}${dia("ab:"+a)}</span></div>`).join("")}</div>
+    ${AB.map(a=>row("save:"+a,ABN[a]+" save"+(K.saveP.has(a)?" ●":""),sg(K.save[a]))).join("")}
+    ${AB.map(a=>row("ab:"+a,ABF[a],K.ab[a])).join("")}
+    ${K.slots.map((n,i)=>n||c.ov["slot:"+(i+1)]!==undefined?row("slot:"+(i+1),"Slots nivel "+(i+1),n):"").join("")}
+    ${K.pact?row("pactLv","Nivel de pact slots",K.pact.lv):""}</details>
+    <p class="note">Tocá el lápiz para pisar un valor. Los rombos coral marcan lo que no es cálculo estándar.</p>`;
+  const open=$("#summary").querySelector("details.more");const wasOpen=open&&open.open;
+  $("#summary").innerHTML=h;if(wasOpen||(ovOpen&&/^(save:|ab:|slot:|pactLv)/.test(ovOpen)))$("#summary details.more").open=true}
 
 /* ---------- builder sections ---------- */
 const fld=(label,inner,cls)=>`<label class="fld${cls?" "+cls:""}"><span>${label}</span>${inner}</label>`;
@@ -303,7 +337,7 @@ const SECT={
 basicos(c){return card("Básicos",`<div class="g2">${fld("Nombre",inp("info.name",c.info.name))}${fld("Jugador",inp("info.player",c.info.player))}
   ${fld("Alignment",inp("info.alignment",c.info.alignment))}${fld("XP",inp("info.xp",c.info.xp,{type:"number",t:"n"}))}
   ${fld("Languages",inp("info.languages",c.info.languages,{ph:"Common, Elvish…"}))}</div>
-  <p class="hint">Todo lo que ves calculado a la derecha se puede pisar con el campo ✎. Las reglas que cambian cálculos van en <a href="#" data-act="step" data-v="reglas">Reglas de la casa</a>; contenido nuevo o modificado, en <a href="#" data-act="step" data-v="homebrew">Homebrew</a>.</p>`)},
+  <p class="hint">Todo lo que ves calculado a la derecha se puede pisar con el campo ✎. Las reglas que cambian cálculos van en <a href="#" data-act="step" data-v="reglas">Reglas de la casa</a>, que también tiene el Homebrew para contenido nuevo o modificado.</p>`)},
 especie(c,K){const SP=lib("species"),sp=SP[c.species.id];const lins=sp&&sp.lin?sp.lin:[];
   return card("Especie",`<div class="g2">${fld("Especie",sel("species.id",c.species.id,libOpts("species")))}
    ${lins.length?fld("Lineage / ancestry",sel("species.lin",c.species.lin,[["","— elegí —"]].concat(lins.map(l=>[l,SRD.lineages[l].n])))):""}
@@ -332,12 +366,17 @@ clases(c,K){const CL=lib("classes"),SC=lib("subclasses");
    <div class="g2">${fld("HP",sel("hpMode",c.hpMode,[["avg","Promedio fijo"],["roll","Tiradas propias"]]))}</div>
    ${c.hpMode==="roll"?`<div class="rolls">${K.cls.map((k,ci)=>Array.from({length:k.lv},(_,l)=>l+1).filter(l=>!(ci===0&&l===1)).map(l=>fld(`${k.d.n} ${l} (d${k.d.hd})`,inp(`hpRolls.${k.id}-${l}`,c.hpRolls[k.id+"-"+l]||"",{type:"number",t:"n",min:1,max:k.d.hd}))).join("")).join("")}</div>`:""}`)},
 atributos(c,K){
-  const pb={8:0,9:1,10:2,11:3,12:4,13:5,14:7,15:9};const cost=AB.reduce((s,a)=>s+(pb[c.base[a]]!=null?pb[c.base[a]]:NaN),0);
-  return card("Atributos",`<div class="abgrid">${AB.map(a=>`<div class="abc"><b>${ABN[a]}</b>${inp("base."+a,c.base[a],{type:"number",t:"n",min:1,max:30})}
-    <small>Final <b>${K.ab[a]}</b> (${sg(K.mod[a])})</small></div>`).join("")}</div>
-   <p class="hint">Point buy: ${isNaN(cost)?"valores fuera de 8-15":cost+" / 27"} · Standard array: 15, 14, 13, 12, 10, 8.</p>
-   <div class="btnrow"><button type="button" data-act="array">Aplicar standard array</button></div>
-   <p class="hint">Puntos extra, topes distintos o atributos fijos: Reglas de la casa → modificador “Strength (score)” o “Tope de STR”.</p>`)},
+  const pbc={8:0,9:1,10:2,11:3,12:4,13:5,14:7,15:9};const cost=AB.reduce((s,a)=>s+(pbc[c.base[a]]!=null?pbc[c.base[a]]:NaN),0);const m=c.abMethod||"manual";
+  const casterAb=(K.casters[0]||{}).ab;
+  const chips=a=>(K.B["ab:"+a]||[]).filter(([l])=>l!=="Base"&&l!=="Total").map(([l,v])=>{const t=/casa|Regla|Override|fija|mínimo|máximo/.test(l)?"c-coral":/Background/.test(l)?"c-teal":"c-gold";
+    return `<span class="chip ${t}">${typeof v==="number"?sg(v):esc(v)} ${esc(l.replace(/^Regla de la casa/,"regla de la casa").replace(/^Feats\/ASI/,"mejoras"))}</span>`}).join("");
+  return `<div class="chhead"><p class="lead2">Escribí el valor base. Background, mejoras y reglas de la casa se suman solos; cada bloque muestra de dónde sale su número.</p>
+   <div class="segs" role="group" aria-label="Método">${[["array","Standard array"],["pb","Point buy"],["manual","Manual"]].map(([k,l])=>`<button type="button" data-act="method" data-v="${k}" aria-pressed="${m===k}">${l}</button>`).join("")}</div></div>
+   ${m==="pb"?`<p class="hint">Point buy: <b>${isNaN(cost)?"valores fuera de 8-15":cost+" / 27"}</b></p>`:m==="array"?`<p class="hint">Standard array 15, 14, 13, 12, 10, 8 aplicado de mayor a menor; reordená cambiando las bases.</p>`:""}
+   <div class="abgrid">${AB.map(a=>{const hi=a===casterAb;const ch=chips(a);return `<div class="abc${hi?" hi":ch.includes("c-coral")?" hr":""}">
+     <div class="abtop"><span>${ABF[a]}${hi?" · spellcasting":""}</span><b>${sg(K.mod[a])}</b></div>
+     <div class="abmid"><label>Base${inp("base."+a,c.base[a],{type:"number",t:"n",min:1,max:30,rr:1})}</label><span class="abfin">${K.ab[a]}</span></div>
+     <div class="chips2">${ch||'<span class="none">Sin bonus</span>'}</div></div>`}).join("")}</div>`},
 feats(c,K){const F=lib("feats");const slots=impSlots(c);
   const slotRow=s=>{const p=c.imp[s.key]||{};const id=p.feat||(s.kind==="general"?"ability-score-improvement":"");const d=F[id];
     const filt=s.kind==="fighting-style"?(v=>v.t==="fighting-style"):s.kind==="epic-boon"?(v=>v.t==="epic-boon"||v.t==="general"||v.t==="other"):(v=>v.t==="general"||v.t==="origin"||v.t==="other");
@@ -357,16 +396,33 @@ skills(c,K){const d=K.cls[0]&&K.cls[0].d;const bg=lib("backgrounds")[c.bg.id]||{
      ${inp("ov.skill:"+id,c.ov["skill:"+id]==null?"":c.ov["skill:"+id],{type:"number",t:"n",ph:"✎"})}</div>`).join("")}</div>`)+
    card("Training y otras competencias",`<p class="hint">Automático: ${esc(K.profs.join(", "))}</p><div class="g2">
    ${fld("Armor extra",inp("profs.armor",c.profs.armor))}${fld("Weapons extra",inp("profs.weapons",c.profs.weapons))}${fld("Tools extra",inp("profs.tools",c.profs.tools))}${fld("Otras",inp("profs.other",c.profs.other))}</div>`)},
-spells(c,K){const S=lib("spells");
-  const srcs=[["","Otro"]].concat(K.casters.map(e=>[e.id,e.n]));if(!spSrc&&K.casters[0])spSrc=K.casters[0].id;
-  const head=K.casters.length?K.casters.map(e=>`<div class="pill">${esc(e.n)}: cantrips ${e.nc}/${e.cantrips} · prepared ${e.np}/${e.prepared} · DC ${e.dc} · ${sg(e.atk)}</div>`).join(""):`<p class="hint">Ninguna clase lanza spells; igual podés sumar spells de feats o especie.</p>`;
-  const list=K.spells.map(s=>`<div class="sprow"><span class="lv">${s.d.l||"C"}</span><b>${esc(s.d.n)}</b><small>${esc(s.src?((lib("classes")[s.src]||{}).n||s.src):"Otro")}${s.always?" · siempre":""}${s.note?" · "+esc(s.note):""}</small>
-    ${s.i!=null?`${s.d.l?chk(`spells.${s.i}.prep`,s.prep,"prepared"):""}${chk(`spells.${s.i}.always`,s.always,"siempre")}<button type="button" class="x" data-act="del" data-v="spells.${s.i}" aria-label="Quitar ${esc(s.d.n)}">×</button>`:""}</div>`).join("");
-  return card("Spells",head+`<div class="splist">${list||'<p class="hint">Sin spells todavía.</p>'}</div>`)+
-   card("Agregar spells",`<div class="g4">${fld("Buscar",`<input id="spq" type="search" value="${esc(spQ)}" placeholder="nombre…">`)}
-    ${fld("Nivel",`<select id="splv">${[["","Todos"]].concat([0,1,2,3,4,5,6,7,8,9].map(n=>[n,n?"Nivel "+n:"Cantrip"])).map(x=>opt(x[0],x[1],String(x[0])===spLv)).join("")}</select>`)}
-    ${fld("Para",`<select id="spsrc">${srcs.map(x=>opt(x[0],x[1],x[0]===spSrc)).join("")}</select>`)}
-    <label class="chk"><input type="checkbox" id="sponly"${spOnly?" checked":""}> Solo lista de la clase</label></div><div id="spres">${spResults(c,K)}</div>`)},
+spells(c,K){
+  if(!spSrc&&K.casters[0])spSrc=K.casters[0].id;
+  const CLN=lib("classes");const srcN=s=>s.src?((CLN[s.src]||{}).n||s.src):"Otro";
+  const row=s=>`<div class="sprow"><span class="lv"><i></i><em>${s.d.l||"C"}</em></span><span class="spn"><b>${esc(s.d.n)}</b><small>${esc([String(s.d.t).split(",")[0],s.d.co?"concentration":"",String(s.d.r).replace(/ feet/g," ft"),s.src?srcN(s):s.note].filter(Boolean).join(" · "))}${HB.spells[s.id]?" · homebrew":""}</small></span>
+    ${s.i!=null?`<details class="kebab"><summary aria-label="Opciones de ${esc(s.d.n)}"><svg aria-hidden="true" width="18" height="4" viewBox="0 0 18 4"><circle cx="2" cy="2" r="2"/><circle cx="9" cy="2" r="2"/><circle cx="16" cy="2" r="2"/></svg></summary><div class="menu">
+      ${s.d.l?chk(`spells.${s.i}.prep`,s.prep,"Preparado"):""}${chk(`spells.${s.i}.always`,s.always,"Siempre preparado")}${descBox(s.d.d)}<button type="button" class="danger" data-act="del" data-v="spells.${s.i}">Quitar</button></div></details>`:""}</div>`;
+  const mine=K.spells.filter(s=>!s.always);const can=mine.filter(s=>!s.d.l),lev=mine.filter(s=>s.d.l);const alw=K.spells.filter(s=>s.always);
+  const e=K.casters[0];
+  const free=(n,what)=>n>0?`<button type="button" class="freeslot" data-act="focussearch" data-v="${what}">+ ${n} lugar${n>1?"es":""} libre${n>1?"s":""} · ${what==="0"?"elegí cantrips":"elegí spells"+(K.pact?" de nivel "+K.pact.lv+" o menos":"")}</button>`:"";
+  const grp={};alw.forEach(s=>{const g=s.src==="Especie"?"Especie · 1 por long rest":s.note==="Subclase"?(K.cls.find(k=>k.id===s.src)||{}).s?.n||"Subclase":s.note||"Siempre";(grp[g]=grp[g]||[]).push(s.d.n)});
+  const iv=invInfo(c,K);const invs=c.features.map((f,i)=>[f,i]).filter(([f])=>/invocation/i.test(f.src||""));
+  return `<label class="search"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <input id="spq" type="search" value="${esc(spQ)}" placeholder="Buscar un spell para agregar…" aria-label="Buscar spell">
+    <select id="splv" aria-label="Nivel">${[["","Todo nivel"]].concat([0,1,2,3,4,5,6,7,8,9].map(n=>[n,n?"Nivel "+n:"Cantrip"])).map(x=>opt(x[0],x[1],String(x[0])===spLv)).join("")}</select>
+    <select id="spsrc" aria-label="Para">${[["","Otro origen"]].concat(K.casters.map(e=>[e.id,e.n])).map(x=>opt(x[0],x[1],x[0]===spSrc)).join("")}</select>
+    <label class="chk"><input type="checkbox" id="sponly"${spOnly?" checked":""}> su lista</label></label>
+   <div id="spres">${spQ||spLv!==""?spResults(c,K):""}</div>
+   <div class="grid2">
+    <section class="card c-sage"><h3>Cantrips <small>${e?e.nc+" / "+e.cantrips:can.length}</small></h3>${can.map(row).join("")||'<p class="hint">Ninguno.</p>'}${e?free(e.cantrips-e.nc,"0"):""}</section>
+    <section class="card c-lav"><h3>Invocations <small>${iv.max?iv.have+" / "+iv.max:iv.have}</small></h3>
+      ${invs.map(([f,i])=>f.n?`<div class="sprow"><span class="spn"><b>${esc(f.n)}</b><small>${esc(first(f.d))}</small></span><details class="kebab"><summary aria-label="Opciones de ${esc(f.n)}"><svg aria-hidden="true" width="18" height="4" viewBox="0 0 18 4"><circle cx="2" cy="2" r="2"/><circle cx="9" cy="2" r="2"/><circle cx="16" cy="2" r="2"/></svg></summary><div class="menu">${descBox(f.d)}<button type="button" data-act="step" data-v="equipo">Editar en Rasgos</button><button type="button" class="danger" data-act="del" data-v="features.${i}">Quitar</button></div></details></div>`
+        :`<div class="custom">${fld("Invocation",inp(`features.${i}.n`,"",{ph:"Nombre"}))}${fld("Qué hace",ta(`features.${i}.d`,f.d||"",2))}<button type="button" class="x" data-act="del" data-v="features.${i}">Quitar</button></div>`).join("")||'<p class="hint">Ninguna.</p>'}
+      ${iv.max>iv.have?`<button type="button" class="freeslot" data-act="addinv">+ ${iv.max-iv.have} libre${iv.max-iv.have>1?"s":""}</button>`:""}</section>
+   </div>
+   <section class="card c-edge"><h3>Preparados <small>${e?e.np+" / "+e.prepared:lev.length}</small></h3>${lev.map(row).join("")||'<p class="hint">Ninguno.</p>'}${e?free(e.prepared-e.np,"1"):""}</section>
+   ${alw.length?`<section class="card c-teal"><h3>Siempre preparados</h3>${Object.entries(grp).map(([g,l])=>`<div class="alw"><small>${esc(g)}</small><span>${l.map(esc).join(" · ")}</span></div>`).join("")}
+     ${K.pact?(()=>{const hi=alw.filter(s=>s.d.l>K.pact.lv).map(s=>s.d.n);return hi.length?`<p class="out"><b>Fuera de alcance:</b> ${hi.map(esc).join(" y ")} ${hi.length>1?"son":"es"} de nivel mayor a ${K.pact.lv}; tus slots son de nivel ${K.pact.lv}.</p>`:""})():""}</section>`:""}`},
 equipo(c,K){const W=SRD.weapons,A=SRD.armor;
   return card("Armadura",`<div class="g2">${fld("Armor",sel("armor",c.armor,[["none","Sin armadura"]].concat(Object.entries(A).filter(([k,a])=>a.t!=="shield").map(([k,a])=>[k,`${a.n} (${a.t}, AC ${a.b}${a.dex?(a.max!=null?" + DEX máx "+a.max:" + DEX"):""})`]))))}
    ${chk("shield",c.shield,"Shield (+2)")}</div><p class="hint">AC actual: <b>${K.ac}</b>. Fórmulas especiales (Mage Armor, naturales): modificador “AC” con “fija en”.</p>`)+
@@ -583,9 +639,8 @@ function bindSet(el){const k=el.dataset.k;const v=parseVal(el);
 document.addEventListener("input",e=>{const el=e.target;
   if(el.id==="spq"){spQ=el.value;$("#spres").innerHTML=spResults(C(),compute(C()));return}
   if(!el.dataset||!el.dataset.k||el.tagName==="SELECT"||el.type==="checkbox")return;
-  bindSet(el);if(view==="build")renderSummary()});
+  bindSet(el);if(view==="build"&&!el.closest("#summary"))renderSummary()});
 document.addEventListener("change",e=>{const el=e.target;
-  if(el.id==="chars"){cur=el.value;Store.saveLocal();render();return}
   if(el.id==="splv"){spLv=el.value;$("#spres").innerHTML=spResults(C(),compute(C()));return}
   if(el.id==="spsrc"){spSrc=el.value;$("#spres").innerHTML=spResults(C(),compute(C()));return}
   if(el.id==="sponly"){spOnly=el.checked;$("#spres").innerHTML=spResults(C(),compute(C()));return}
@@ -594,6 +649,7 @@ document.addEventListener("change",e=>{const el=e.target;
   if(el.tagName==="SELECT"||el.type==="checkbox"||el.dataset.rr){bindSet(el);
     if(el.dataset.k==="species.id")C().species.lin="";
     rr()}});
+function closeMenus(){document.querySelectorAll("details.charmenu[open],details.kebab[open]").forEach(d=>d.open=false)}
 function keepScroll(f){const y=scrollY;f();scrollTo(0,y)}
 let ptrDown=false,pend=false;
 addEventListener("pointerdown",()=>{ptrDown=true},true);
@@ -604,10 +660,16 @@ document.addEventListener("click",async e=>{const b=e.target.closest("[data-act]
   const done=(hb)=>{hb?saveHB():saveChar();keepScroll(render)};
   switch(a){
    case "view":view=v;render();scrollTo(0,0);return;
-   case "step":step=v;render();scrollTo(0,0);return;
-   case "new":{const n=newChar();CH[n.id]=n;cur=n.id;step="basicos";view="build";Store.put(n.id,n);render();return}
-   case "dup":{const n=clone(c);n.id="c_"+uid();n.info.name+=" (copia)";CH[n.id]=n;cur=n.id;Store.put(n.id,n);render();return}
-   case "delask":$("#delbar").hidden=false;return;
+   case "step":step=v;view="build";closeMenus();render();scrollTo(0,0);return;
+   case "pick":cur=v;closeMenus();Store.saveLocal();render();return;
+   case "ov":ovOpen=ovOpen===v?null:v;renderSummary();{const i=$("#summary .ovbox input");if(i)i.focus()}return;
+   case "method":{c.abMethod=v;if(v==="array"){const order=AB.slice().sort((x,y)=>(c.base[y]||0)-(c.base[x]||0));[15,14,13,12,10,8].forEach((n,i)=>c.base[order[i]]=n)}
+     else if(v==="pb")AB.forEach(a=>{if(!(c.base[a]>=8&&c.base[a]<=15))c.base[a]=8});done();return}
+   case "focussearch":spLv=v==="0"?"0":"";spOnly=true;keepScroll(render);{const q=$("#spq");if(q){q.focus();q.scrollIntoView({block:"center"})}}return;
+   case "addinv":c.features.push({n:"",src:"Invocation",d:"",g:"class",mods:[]});done();return;
+   case "new":{const n=newChar();CH[n.id]=n;cur=n.id;step="origen";view="build";closeMenus();Store.put(n.id,n);render();return}
+   case "dup":{closeMenus();const n=clone(c);n.id="c_"+uid();n.info.name+=" (copia)";CH[n.id]=n;cur=n.id;Store.put(n.id,n);render();return}
+   case "delask":closeMenus();$("#delbar").hidden=false;return;
    case "delno":$("#delbar").hidden=true;return;
    case "delyes":{const id=cur;delete CH[id];await Store.del(id);if(!Object.keys(CH).length){const n=newChar();CH[n.id]=n}cur=Object.keys(CH)[0];$("#delbar").hidden=true;Store.put(cur,C());render();return}
    case "del":{const ks=v.split(".");const isHB=ks[0]==="HB";const root=isHB?HB:c;const path=isHB?ks.slice(1):ks;const arr=getP(root,path.slice(0,-1).join("."));arr.splice(+path[path.length-1],1);done(isHB);return}
